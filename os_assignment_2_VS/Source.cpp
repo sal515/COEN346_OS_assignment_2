@@ -17,6 +17,9 @@
 #include<queue> //https://www.geeksforgeeks.org/stl-priority-queue-for-structure-or-class/
 #include <vector>
 
+
+// ===================== Struct Definitions ==========================================
+
 // This is the comparison function for the Priority Queue
 struct compareProcessStartTime {
 	bool operator()(Process const &p1, Process const &p2) {
@@ -25,47 +28,35 @@ struct compareProcessStartTime {
 	}
 };
 
+
+
 struct numberOfLinesAndFromTheLine {
 	int numberOfLines;
 	int fromTheLine;
 };
 
 
-void storeToPriorityQueue(std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> &priorityQueue) {
+// ===================== Struct Definitions ==========================================
 
-	// std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> priorityQueue;
 
-	Process Process1 = Process(100, 2);
-	Process Process2 = Process(50, 2);
-	Process Process3 = Process(300, 2);
-	Process Process4 = Process(2, 2);
-	Process Process5 = Process(900, 2);
-	Process Process6 = Process(450, 2);
-	Process Process7 = Process(700, 2);
-	priorityQueue.push(Process1);
-	priorityQueue.push(Process2);
-	priorityQueue.push(Process3);
-	priorityQueue.push(Process4);
-	priorityQueue.push(Process5);
-	priorityQueue.push(Process6);
-	priorityQueue.push(Process7);
 
-}
 
-void popFromPriorityQueue(std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> &priorityQueue) {
-	while (!priorityQueue.empty()) {
-		Process process = priorityQueue.top();
-		priorityQueue.pop();
-		std::cout << process.getStartTime() << std::endl;
-	}
-}
+// ======================= Prototype Test Functions =========================
+void storeToPriorityQueue(std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> &priorityQueue);
+void popFromPriorityQueue(std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> &priorityQueue);
+void testingPriorityQueueFunc();
+void testVector();
+void pirntVectorOfLines(std::vector<std::string> lineVector);
 
-void testingPriorityQueueFunc() {
-	// Code to testPriorityQueues
-	std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> priorityQueue;
-	storeToPriorityQueue(priorityQueue);
-	popFromPriorityQueue(priorityQueue);
-}
+
+// ======================= Prototype Test Functions =========================
+
+
+
+
+
+
+
 
 // the randomFileGenerator function creates and writes some predefined integers to the input.txt file
 void randomNumberFileGenerator() {
@@ -129,44 +120,17 @@ void printTextFiles() {
 }
 
 
-void testVector() {
-	std::vector<int> intVector;
-	intVector.push_back(1);
-	intVector.push_back(2);
-	intVector.push_back(3);
-	intVector.push_back(4);
-
-	for (std::vector<int>::iterator it = intVector.begin(); it != intVector.end(); it++) {
-		std::cout << ' ' << *it << std::endl;
-	}
-}
-
-void pirntVectorOfLines(std::vector<std::string> lineVector) {
-	for (std::vector<std::string>::iterator it = lineVector.begin(); it != lineVector.end(); it++) {
-		std::cout << ' ' << *it << std::endl;
-	}
-}
-
-void testGetline() {
-
-}
 
 
-// TODO Fix file reader
-//std::vector<numberOfLinesAndFromTheLine> readProcessesToQueues(std::vector<std::queue<Process> *> VectorOfQueuesPtr) {
-void readFileToVectors(std::vector<std::queue<Process> *> &VectorOfQueuesPtr,
+
+void readFileToVectors(std::vector<std::queue<Process> *> &vectorOfQueuesPtr,
 	std::vector<std::string> &vectorOfLines,
-	std::vector<numberOfLinesAndFromTheLine> &linesAndFromLineVec) {
-
-	//std::vector<std::vector<void>> returningMultipleVectors;
-
-	//std::vector<numberOfLinesAndFromTheLine> linesAndFromLineVec;
+	std::vector<numberOfLinesAndFromTheLine> &vectorOfLinesAndUserLinesInFile) {
 
 	std::queue<Process> *queuePtrTemp;
 
 	// declare temporary variables
 	std::string strTemp;
-	//std::vector<std::string> vectorOfLines;
 
 	// readfile to ifstream object
 	std::ifstream fileObj("./input.txt");
@@ -201,7 +165,6 @@ void readFileToVectors(std::vector<std::queue<Process> *> &VectorOfQueuesPtr,
 		// Temporary string builder
 		std::string strBuilder = "";
 
-		//        std::cout << strTemp.length() << std::endl;
 
 		for (std::size_t i = 0; i < strTemp.length(); i++) {
 
@@ -209,18 +172,11 @@ void readFileToVectors(std::vector<std::queue<Process> *> &VectorOfQueuesPtr,
 				if (i == (strTemp.length() - 1)) {
 					processCountFinished = true;
 				}
-
-				// checking for new line
-				//if (strTemp[i] != '\n') {
-					// checking for user
-
-//                    if (isalpha(strTemp[i])) {
-					// condition to check for if user is more than 1 letter
+				// if user was found already don't create duplicate queue for a  user
 				if (!userFound) {
 					queuePtrTemp = new std::queue<Process>;
-					VectorOfQueuesPtr.push_back(queuePtrTemp);
+					vectorOfQueuesPtr.push_back(queuePtrTemp);
 					userFound = true;
-					//                        }
 				}
 				// check for space and ignore it
 				else if (strTemp[i] == ' ') {
@@ -236,29 +192,20 @@ void readFileToVectors(std::vector<std::queue<Process> *> &VectorOfQueuesPtr,
 					numOfLinesAndFromTheLineStruct.fromTheLine = lineCounter;
 					//                    numOfLinesAndFromTheLineStruct.numberOfLines = std::stoi(strBuilder);
 					numOfLinesAndFromTheLineStruct.numberOfLines = std::stoi(strBuilder);
-					linesAndFromLineVec.push_back(numOfLinesAndFromTheLineStruct);
+					vectorOfLinesAndUserLinesInFile.push_back(numOfLinesAndFromTheLineStruct);
 				}
 				catch (int e) {
 					std::cout << "Error: " << e << std::endl;
 				}
 			}
-
-			//}
 		}
 	}
-
-	//returningMultipleVectors.push_back((void)linesAndFromLineVec);
-	//returningMultipleVectors.push_back((void)vectorOfLines);
 	return;
 }
 
-void populateUserQueues(std::vector<std::queue<Process> *> &vectorOfQueuesPtr,
+void populateUserQueuesFromVectors(std::vector<std::queue<Process> *> &vectorOfQueuesPtr,
 	std::vector<std::string> vectorOfLines,
 	std::vector<numberOfLinesAndFromTheLine> VectorOfLinesAndFromLines) {
-
-	
-
-
 
 	for (std::size_t userObjects = 0; userObjects < VectorOfLinesAndFromLines.size(); userObjects++) {
 
@@ -272,11 +219,7 @@ void populateUserQueues(std::vector<std::queue<Process> *> &vectorOfQueuesPtr,
 				lineElements < vectorOfLines.at(VectorOfLinesAndFromLines.at(userObjects).fromTheLine + 1 + lines).size();
 				lineElements++) {
 
-				// TODO: This is the issue that I wrote a fixed size equal to the second line length but it showuld be dynamic to each line
-				//while()
-
 				std::string lineStrTemp = vectorOfLines.at(VectorOfLinesAndFromLines.at(userObjects).fromTheLine + 1 + lines);
-
 
 				// checking the start time and building the Start time string to be saved in the process obj
 				if (isdigit(lineStrTemp[lineElements]) && !isDuration) {
@@ -292,7 +235,7 @@ void populateUserQueues(std::vector<std::queue<Process> *> &vectorOfQueuesPtr,
 				else if (isDuration && isdigit(lineStrTemp[lineElements])) {
 					strBuilder.push_back(lineStrTemp[lineElements]);
 				}
-				
+
 				// Checking when to save the duration time to the process obj - saves the duration time after the string reaches its end
 				// sets the durationTime of the temporary userProcess object 
 				// saved it to the respective user queue
@@ -300,25 +243,27 @@ void populateUserQueues(std::vector<std::queue<Process> *> &vectorOfQueuesPtr,
 					userProcess.setDurationTime(std::stoi(strBuilder));
 					vectorOfQueuesPtr.at(userObjects)->push(userProcess);
 				}
-
-				int i = 0;
-				//if(isdigit(vectorOfLines.at()))
 			}
 		}
-
-		//vectorOfQueuesPtr.at(userObjects)->push(new Process())
-
-			//VectorOfLinesAndFromLines.at(i).fromTheLine+1;
 	}
-
-
-	//vectorOfLines
-
-
-
 }
 
+std::priority_queue<Process, std::vector<Process>, compareProcessStartTime > populatePriorityQueueFromUserQueues(std::vector<std::queue<Process> *> vectorOfUserQueues) {
 
+	// requires the comparator struct to be declared
+	std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> priorityQueue;
+
+	for (int i = 0; i < vectorOfUserQueues.size(); i++) {
+		while (!vectorOfUserQueues.at(i)->empty()) {
+			priorityQueue.push( (Process)(vectorOfUserQueues.at(i)->pop()));
+		}
+	}
+
+	
+	int i = 0;
+
+	return priorityQueue;
+}
 
 
 int main() {
@@ -334,15 +279,13 @@ int main() {
 
 
 	std::vector<std::string> vectorOfLines;
-	std::vector<numberOfLinesAndFromTheLine> VectorOfLinesAndFromLines;
+	std::vector<numberOfLinesAndFromTheLine> vectorOfLinesAndFromLines;
 
-	readFileToVectors(Queues, vectorOfLines, VectorOfLinesAndFromLines);
-
-
-	populateUserQueues(Queues, vectorOfLines, VectorOfLinesAndFromLines);
+	readFileToVectors(Queues, vectorOfLines, vectorOfLinesAndFromLines);
+	populateUserQueuesFromVectors(Queues, vectorOfLines, vectorOfLinesAndFromLines);
 
 
-
+	populatePriorityQueueFromUserQueues(Queues);
 
 	std::cout << "pause... " << std::endl;
 	int i = 0;
@@ -360,3 +303,110 @@ int main() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ============================================ Test functions ===========================================================================
+// ============================================ Test functions ===========================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// TEST FUNCTION
+void storeToPriorityQueue(std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> &priorityQueue) {
+
+	// std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> priorityQueue;
+
+	Process Process1 = Process(100, 2);
+	Process Process2 = Process(50, 2);
+	Process Process3 = Process(300, 2);
+	Process Process4 = Process(2, 2);
+	Process Process5 = Process(900, 2);
+	Process Process6 = Process(450, 2);
+	Process Process7 = Process(700, 2);
+	priorityQueue.push(Process1);
+	priorityQueue.push(Process2);
+	priorityQueue.push(Process3);
+	priorityQueue.push(Process4);
+	priorityQueue.push(Process5);
+	priorityQueue.push(Process6);
+	priorityQueue.push(Process7);
+
+}
+
+// TEST FUNCTION
+void popFromPriorityQueue(std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> &priorityQueue) {
+	while (!priorityQueue.empty()) {
+		Process process = priorityQueue.top();
+		priorityQueue.pop();
+		std::cout << process.getStartTime() << std::endl;
+	}
+}
+
+// TEST FUNCTION
+void testingPriorityQueueFunc() {
+	// Code to testPriorityQueues
+	std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> priorityQueue;
+	storeToPriorityQueue(priorityQueue);
+	popFromPriorityQueue(priorityQueue);
+}
+
+// TEST FUNCTION
+void testVector() {
+	std::vector<int> intVector;
+	intVector.push_back(1);
+	intVector.push_back(2);
+	intVector.push_back(3);
+	intVector.push_back(4);
+
+	for (std::vector<int>::iterator it = intVector.begin(); it != intVector.end(); it++) {
+		std::cout << ' ' << *it << std::endl;
+	}
+}
+
+// TEST FUNCTION
+void pirntVectorOfLines(std::vector<std::string> lineVector) {
+	for (std::vector<std::string>::iterator it = lineVector.begin(); it != lineVector.end(); it++) {
+		std::cout << ' ' << *it << std::endl;
+	}
+}
