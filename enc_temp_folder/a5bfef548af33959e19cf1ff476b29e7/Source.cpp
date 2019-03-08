@@ -3,6 +3,7 @@
 #include <string>
 #include <stdio.h>
 #include <ctype.h>
+#include <cstddef>
 // Thread headers
 //#include <processthreadsapi.h>
 #include <windows.h>
@@ -25,7 +26,7 @@ struct compareProcessStartTime {
 };
 
 struct numberOfLinesAndFromTheLine {
-	std::string numberOfLines;
+	int numberOfLines;
 	int fromTheLine;
 };
 
@@ -153,7 +154,7 @@ void testGetline() {
 
 // TODO Fix file reader
 //std::vector<numberOfLinesAndFromTheLine> readProcessesToQueues(std::vector<std::queue<Process> *> VectorOfQueuesPtr) {
-void readProcessesToQueues(std::vector<std::queue<Process> *> &VectorOfQueuesPtr, 
+void readFileToVectors(std::vector<std::queue<Process> *> &VectorOfQueuesPtr,
 	std::vector<std::string> &vectorOfLines,
 	std::vector<numberOfLinesAndFromTheLine> &linesAndFromLineVec) {
 
@@ -190,7 +191,7 @@ void readProcessesToQueues(std::vector<std::queue<Process> *> &VectorOfQueuesPtr
 	int lineCounter = 0;
 
 	// Reading the vector containing lines from position 1 and skipping position 0. Position 0 is ignored because its Quantum time
-	for (int j = 0 + 1; j < vectorOfLines.size(); j++) {
+	for (std::size_t j = 0 + 1; j < vectorOfLines.size(); j++) {
 		//        std::cout << ' ' << *it << std::endl;
 		lineCounter++;
 		strTemp = vectorOfLines[j];
@@ -202,7 +203,7 @@ void readProcessesToQueues(std::vector<std::queue<Process> *> &VectorOfQueuesPtr
 
 		//        std::cout << strTemp.length() << std::endl;
 
-		for (int i = 0; i < strTemp.length(); i++) {
+		for (std::size_t i = 0; i < strTemp.length(); i++) {
 
 			if (isalpha(strTemp[0])) {
 				if (i == (strTemp.length() - 1)) {
@@ -234,7 +235,7 @@ void readProcessesToQueues(std::vector<std::queue<Process> *> &VectorOfQueuesPtr
 				try {
 					numOfLinesAndFromTheLineStruct.fromTheLine = lineCounter;
 					//                    numOfLinesAndFromTheLineStruct.numberOfLines = std::stoi(strBuilder);
-					numOfLinesAndFromTheLineStruct.numberOfLines = strBuilder;
+					numOfLinesAndFromTheLineStruct.numberOfLines = std::stoi(strBuilder);
 					linesAndFromLineVec.push_back(numOfLinesAndFromTheLineStruct);
 				}
 				catch (int e) {
@@ -251,6 +252,71 @@ void readProcessesToQueues(std::vector<std::queue<Process> *> &VectorOfQueuesPtr
 	return;
 }
 
+void populateUserQueues(std::vector<std::queue<Process> *> &vectorOfQueuesPtr,
+	std::vector<std::string> vectorOfLines,
+	std::vector<numberOfLinesAndFromTheLine> VectorOfLinesAndFromLines) {
+
+	
+
+
+
+	for (std::size_t userObjects = 0; userObjects < VectorOfLinesAndFromLines.size(); userObjects++) {
+
+		for (std::size_t lines = 0; lines < VectorOfLinesAndFromLines.at(userObjects).numberOfLines; lines++) {
+			bool isDuration = false;
+			bool saveDuration = false;
+			std::string strBuilder = "";
+			Process userProcess = Process();
+
+			for (int lineElements = 0;
+				lineElements < vectorOfLines.at(VectorOfLinesAndFromLines.at(userObjects).fromTheLine + 1).size();
+				lineElements++) {
+
+				std::string lineStrTemp = vectorOfLines.at(VectorOfLinesAndFromLines.at(userObjects).fromTheLine + 1 + lines);
+
+
+				// checking the start time and building the Start time string to be saved in the process obj
+				if (isdigit(lineStrTemp[lineElements]) && !isDuration) {
+					strBuilder.push_back(lineStrTemp[lineElements]);
+				}
+				// saving the start time to the process obj and settin the start of duration string builder
+				else if (lineStrTemp[lineElements] == ' ') {
+					userProcess.setStartTime(std::stoi(strBuilder));
+					isDuration = true;
+					strBuilder = "";
+				}
+				// building the duration string to be saved in the process obj
+				else if (isDuration && isdigit(lineStrTemp[lineElements])) {
+					strBuilder.push_back(lineStrTemp[lineElements]);
+				}
+				
+				// Checking when to save the duration time to the process obj - saves the duration time after the string reaches its end
+				// sets the durationTime of the temporary userProcess object 
+				// saved it to the respective user queue
+				if (lineElements == (lineStrTemp.length() - 1)) {
+					userProcess.setDurationTime(std::stoi(strBuilder));
+					vectorOfQueuesPtr.at(userObjects)->push(userProcess);
+				}
+
+				int i = 0;
+				//if(isdigit(vectorOfLines.at()))
+			}
+		}
+
+		//vectorOfQueuesPtr.at(userObjects)->push(new Process())
+
+			//VectorOfLinesAndFromLines.at(i).fromTheLine+1;
+	}
+
+
+	//vectorOfLines
+
+
+
+}
+
+
+
 
 int main() {
 
@@ -262,14 +328,15 @@ int main() {
 	// ===================================================
 
 	std::vector<std::queue<Process> *> Queues;
+
+
 	std::vector<std::string> vectorOfLines;
-	std::vector<numberOfLinesAndFromTheLine> linesAndFromLineVec;
-	//std::vector<std::vector<void> *> returnedVectors;
+	std::vector<numberOfLinesAndFromTheLine> VectorOfLinesAndFromLines;
 
-	readProcessesToQueues(Queues, vectorOfLines, linesAndFromLineVec);
-
+	readFileToVectors(Queues, vectorOfLines, VectorOfLinesAndFromLines);
 
 
+	populateUserQueues(Queues, vectorOfLines, VectorOfLinesAndFromLines);
 
 
 

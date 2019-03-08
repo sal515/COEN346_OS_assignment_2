@@ -16,8 +16,12 @@ public:
 
 private:
 	double startTime;
+// execution time is from the scheduler 
 private:
 	double executionTime;
+// how long the process needs to finish
+private:
+	double durationTime;
 private:
 	double elapsedTime;
 private:
@@ -31,6 +35,9 @@ public:
 public:
 	double getExecutionTime() const;
 	void setExecutionTime(double executionTime);
+
+	double getDurationTime() const;
+	void setDurationTime(double durationTime);
 
 	double getElapsedTime() const;
 	void setElapsedTime(double elapsedTime);
