@@ -309,27 +309,19 @@ int main() {
 
 	readFileToVectors(Queues, vectorOfLines, vectorOfLinesAndFromLines);
 	populateUserQueuesFromVectors(Queues, vectorOfLines, vectorOfLinesAndFromLines);
+
 	populatePriorityQueueFromUserQueues(Queues, priorityQueue);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	std::cout << "pause... " << std::endl;
 	int i = 0;
 	std::cin >> i;
+
+
+	//    std::cout << isalpha('Z') << std::endl;
+
+
+	//    testVector();
+
 
 	return 0;
 }

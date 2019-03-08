@@ -11,7 +11,11 @@ class Process
 public:
 	Process(double startTime, double executionTime);
 
-	Process(double startTime, double executionTime, double elapsedTime);
+	Process(double startTime, double executionTime, double elapsedTime, double durationTime);
+
+	Process(const Process &P1);
+
+
 
 	Process();
 
