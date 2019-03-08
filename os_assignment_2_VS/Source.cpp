@@ -192,6 +192,7 @@ void readProcessesToQueues(std::vector<std::queue<Process> *> VectorOfQueuesPtr)
 		strTemp = vectorOfLines[j];
 		numberOfLinesAndFromTheLine numOfLinesAndFromTheLineStruct;
 		bool userFound = false;
+		bool processCountFinished = false;
 		// Temporary string builder
 		std::string strBuilder = "";
 
@@ -200,28 +201,35 @@ void readProcessesToQueues(std::vector<std::queue<Process> *> VectorOfQueuesPtr)
 
 		for (int i = 0; i < strTemp.length(); i++) {
 
+
+
 			if (isalpha(strTemp[0])) {
+				if (i == (strTemp.length() - 1)) {
+					processCountFinished = true;
+				}
+
 				// checking for new line
-				if (strTemp[i] != '\n') {
+				//if (strTemp[i] != '\n') {
 					// checking for user
 
 //                    if (isalpha(strTemp[i])) {
 					// condition to check for if user is more than 1 letter
-					if (!userFound) {
-						queuePtrTemp = new std::queue<Process>;
-						VectorOfQueuesPtr.push_back(queuePtrTemp);
-						userFound = true;
-						//                        }
-					}
-					// check for space and ignore it
-					else if (strTemp[i] == ' ') {
-						// continue
-					}
-					// check for the number of processes
-					else if (isdigit(strTemp[i])) {
-						strBuilder.push_back(strTemp[i]);
-					}
+				if (!userFound) {
+					queuePtrTemp = new std::queue<Process>;
+					VectorOfQueuesPtr.push_back(queuePtrTemp);
+					userFound = true;
+					//                        }
 				}
+				// check for space and ignore it
+				else if (strTemp[i] == ' ') {
+					// continue
+				}
+				// check for the number of processes
+				else if (isdigit(strTemp[i])) {
+					strBuilder.push_back(strTemp[i]);
+				}
+			}
+			if (processCountFinished) {
 				try {
 					numOfLinesAndFromTheLineStruct.fromTheLine = lineCounter;
 					//                    numOfLinesAndFromTheLineStruct.numberOfLines = std::stoi(strBuilder);
@@ -232,6 +240,8 @@ void readProcessesToQueues(std::vector<std::queue<Process> *> VectorOfQueuesPtr)
 					std::cout << "Error: " << e << std::endl;
 				}
 			}
+
+			//}
 		}
 
 
@@ -287,7 +297,7 @@ int main() {
 
 	//    testingPriorityQueueFunc();
 
-	    randomNumberFileGenerator();
+		//randomNumberFileGenerator();
 	//    std::cout << determineQuantum() << std::endl;
 
 	// ===================================================
@@ -295,7 +305,7 @@ int main() {
 	std::vector<std::queue<Process> *> Queues;
 
 
-	//readProcessesToQueues(Queues);
+	readProcessesToQueues(Queues);
 
 	//    std::cout << isalpha('Z') << std::endl;
 
