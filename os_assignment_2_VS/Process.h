@@ -32,6 +32,13 @@ private:
 private:
 	double elapsedTime;
 private:
+	bool done;
+// TODO : add start boolean var def
+private:
+	bool start;
+private:
+	int user;
+private:
 	HANDLE getCurrentThreadHandle();
 
 
@@ -43,11 +50,18 @@ public:
 	double getExecutionTime() const;
 	void setExecutionTime(double executionTime);
 
+	int getUser() const;
+	void setUser(int user);
+
 	double getDurationTime() const;
 	void setDurationTime(double durationTime);
 
 	double getElapsedTime() const;
 	void setElapsedTime(double elapsedTime);
+
+	bool isDone() const;
+
+	void setDone(int i);
 
 public:
 	void setCurrentThreadHandle(HANDLE currentThreadHandle);

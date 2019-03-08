@@ -28,6 +28,12 @@ struct compareProcessStartTime {
 	}
 };
 
+struct compareProcessDurationTime {
+	bool operator()(Process const &p1, Process const &p2) {
+		// return "true" if "p1" is ordered before "p2", for example:
+		return p1.getDurationTime() > p2.getDurationTime();
+	}
+};
 
 
 struct numberOfLinesAndFromTheLine {
@@ -44,6 +50,7 @@ struct numberOfLinesAndFromTheLine {
 // ======================= Prototype Test Functions =========================
 void storeToPriorityQueue(std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> &priorityQueue);
 void popFromPriorityQueue(std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> &priorityQueue);
+void popFromPriorityQueue(std::priority_queue<Process, std::vector<Process>, compareProcessDurationTime> &priorityQueue);
 void testingPriorityQueueFunc();
 void testVector();
 void pirntVectorOfLines(std::vector<std::string> lineVector);
@@ -241,6 +248,8 @@ void populateUserQueuesFromVectors(std::vector<std::queue<Process>> &vectorOfQue
 				// saved it to the respective user queue
 				if (lineElements == (lineStrTemp.length() - 1)) {
 					userProcess.setDurationTime(std::stoi(strBuilder));
+					// adding the user id to the user process 
+					userProcess.setUser((int)userObjects);
 					vectorOfQueuesPtr.at(userObjects).push(userProcess);
 				}
 			}
@@ -249,19 +258,8 @@ void populateUserQueuesFromVectors(std::vector<std::queue<Process>> &vectorOfQue
 }
 
 void populatePriorityQueueFromUserQueues(std::vector<std::queue<Process>> VecOfQueues,
-	std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> &priorityQueue) {
-
-
-	//// This is the comparison function for the Priority Queue
-	//struct compareProcessStartTime {
-	//	bool operator()(Process const &p1, Process const &p2) {
-	//		// return "true" if "p1" is ordered before "p2", for example:
-	//		return p1.getStartTime() > p2.getStartTime();
-	//	}
-	//};
-
-	//// requires the comparator struct to be declared
-	//std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> priorityQueue;
+	std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> &priorityQueueStartTime,
+	std::priority_queue<Process, std::vector<Process>, compareProcessDurationTime> &priorityQueueDurationTime) {
 
 	for (int i = 0; i < VecOfQueues.size(); i++) {
 		Process tempProcess;
@@ -274,14 +272,45 @@ void populatePriorityQueueFromUserQueues(std::vector<std::queue<Process>> VecOfQ
 
 			VecOfQueues.at(i).pop();
 
-			priorityQueue.push(tempProcess);
+			priorityQueueStartTime.push(tempProcess);
+			priorityQueueDurationTime.push(tempProcess);
 
 		}
 
 	}
 	int k = 0;
+}
+
+int numberOfUsers(const std::vector<std::queue<Process>> &queues) {
+	return queues.size();
+}
+
+int  numberOfProcesses(const std::queue<Process> &queue) {
+	return queue.size();
+}
+
+void timeCalculation(double &quantumTime, double &userTime,
+	const std::vector<std::queue<Process> > &vectorOfUserQueues) {
+
+	quantumTime = determineQuantum();
+	// calculate usertime 
+	userTime = quantumTime / numberOfUsers(vectorOfUserQueues);
 
 }
+
+void calcProcesTime(std::vector<double> &processTime, const double &userTime,
+	const std::vector<std::queue<Process> > &vectorOfUserQueues) 
+{
+
+	// calculate userProcessTime
+	for (int i = 0; i < numberOfUsers(vectorOfUserQueues); i++) {
+		double numberOfProcessesInQueue = numberOfProcesses(vectorOfUserQueues.at(i));
+		processTime.push_back(userTime / numberOfProcessesInQueue);
+	}
+}
+
+
+
 
 
 int main() {
@@ -301,22 +330,32 @@ int main() {
 	//	}
 	//};
 
+	// Declaration of Main Variables needed for the Assignment
 	// requires the comparator struct to be declared
-	std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> priorityQueue;
-	std::vector<std::queue<Process> > Queues;
+	std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> priorityQueueStartTime;
+	std::priority_queue<Process, std::vector<Process>, compareProcessDurationTime> priorityQueueDurationTime;
+	std::vector<std::queue<Process> > vectorOfUserQueues;
 	std::vector<std::string> vectorOfLines;
 	std::vector<numberOfLinesAndFromTheLine> vectorOfLinesAndFromLines;
 
-	readFileToVectors(Queues, vectorOfLines, vectorOfLinesAndFromLines);
-	populateUserQueuesFromVectors(Queues, vectorOfLines, vectorOfLinesAndFromLines);
-	populatePriorityQueueFromUserQueues(Queues, priorityQueue);
+	double quantumTime;
+	double userTime;
+	std::vector<double> processTime;
 
 
+	readFileToVectors(vectorOfUserQueues, vectorOfLines, vectorOfLinesAndFromLines);
+	populateUserQueuesFromVectors(vectorOfUserQueues, vectorOfLines, vectorOfLinesAndFromLines);
+	populatePriorityQueueFromUserQueues(vectorOfUserQueues, priorityQueueStartTime, priorityQueueDurationTime);
 
 
+	//popFromPriorityQueue(priorityQueueStartTime);
+	popFromPriorityQueue(priorityQueueDurationTime);
 
 
+	// calculate the time variables needed for the user
+	timeCalculation(quantumTime, userTime, vectorOfUserQueues);
 
+	calcProcesTime(processTime, userTime, vectorOfUserQueues);
 
 
 
@@ -413,6 +452,15 @@ void popFromPriorityQueue(std::priority_queue<Process, std::vector<Process>, com
 		Process process = priorityQueue.top();
 		priorityQueue.pop();
 		std::cout << process.getStartTime() << std::endl;
+	}
+}
+
+// TEST FUNCTION
+void popFromPriorityQueue(std::priority_queue<Process, std::vector<Process>, compareProcessDurationTime> &priorityQueue) {
+	while (!priorityQueue.empty()) {
+		Process process = priorityQueue.top();
+		priorityQueue.pop();
+		std::cout << process.getDurationTime() << std::endl;
 	}
 }
 
