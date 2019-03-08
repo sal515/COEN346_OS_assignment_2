@@ -252,10 +252,6 @@ void readProcessesToQueues(std::vector<std::queue<Process> *> &VectorOfQueuesPtr
 }
 
 
-
-
-
-
 int main() {
 
 	//    testingPriorityQueueFunc();
@@ -266,10 +262,9 @@ int main() {
 	// ===================================================
 
 	std::vector<std::queue<Process> *> Queues;
-
-
 	std::vector<std::string> vectorOfLines;
 	std::vector<numberOfLinesAndFromTheLine> linesAndFromLineVec;
+	//std::vector<std::vector<void> *> returnedVectors;
 
 	readProcessesToQueues(Queues, vectorOfLines, linesAndFromLineVec);
 
