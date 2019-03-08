@@ -1,0 +1,61 @@
+#include "Process.h"
+
+Process::~Process() {
+
+}
+
+double Process::getExecutionTime() const {
+	return executionTime;
+}
+
+void Process::setExecutionTime(double executionTime) {
+	Process::executionTime = executionTime;
+}
+
+double Process::getElapsedTime() const {
+	return elapsedTime;
+}
+
+void Process::setElapsedTime(double elapsedTime) {
+	Process::elapsedTime = elapsedTime;
+}
+
+HANDLE Process::getCurrentThreadHandle() {
+	return currentThreadHandle;
+}
+
+void Process::setCurrentThreadHandle(HANDLE currentThreadHandle) {
+	Process::currentThreadHandle = currentThreadHandle;
+}
+
+double Process::getStartTime() const {
+	return startTime;
+}
+
+void Process::setStartTime(double startTime) {
+	Process::startTime = startTime;
+}
+
+Process::Process(double startTime, double executionTime, double elapsedTime) : startTime(startTime),
+executionTime(executionTime),
+elapsedTime(elapsedTime) {
+	Process::currentThreadHandle = NULL;
+	// no logic
+
+}
+
+Process::Process(double startTime, double executionTime) : startTime(startTime), executionTime(executionTime) {
+
+
+	Process::elapsedTime = 0;
+	Process::currentThreadHandle = NULL;
+	// no logic
+
+}
+
+Process::Process() {
+	Process::startTime = 0;
+	Process::executionTime = 0;
+	Process::elapsedTime = 0;
+	Process::currentThreadHandle = NULL;
+}
