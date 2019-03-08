@@ -269,11 +269,11 @@ void populateUserQueues(std::vector<std::queue<Process> *> &vectorOfQueuesPtr,
 			Process userProcess = Process();
 
 			for (int lineElements = 0;
-				lineElements < vectorOfLines.at(VectorOfLinesAndFromLines.at(userObjects).fromTheLine + 1).size();
+				lineElements < vectorOfLines.at(VectorOfLinesAndFromLines.at(userObjects).fromTheLine + 1 + lines).size();
 				lineElements++) {
 
 				// TODO: This is the issue that I wrote a fixed size equal to the second line length but it showuld be dynamic to each line
-				while()
+				//while()
 
 				std::string lineStrTemp = vectorOfLines.at(VectorOfLinesAndFromLines.at(userObjects).fromTheLine + 1 + lines);
 
