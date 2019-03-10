@@ -288,8 +288,16 @@ int numberOfUsers(const std::vector<std::queue<Process>> &queues) {
 	return queues.size();
 }
 
+int numberOfUsers(const std::vector<std::queue<Process>> *queues) {
+	return queues->size();
+}
+
 int  numberOfProcesses(const std::queue<Process> &queue) {
 	return queue.size();
+}
+
+int  numberOfProcesses(const std::queue<Process> *queue) {
+	return queue->size();
 }
 
 void timeCalculation(double &quantumTime, double &userTime,
@@ -302,13 +310,17 @@ void timeCalculation(double &quantumTime, double &userTime,
 }
 
 void calcProcesTime(std::vector<double> &processTime, const double &userTime,
-	const std::vector<std::queue<Process> > &vectorOfUserQueues)
+	const std::vector<std::queue<Process> > *vectorOfUserQueues)
 {
-
 	// calculate userProcessTime
 	for (int i = 0; i < numberOfUsers(vectorOfUserQueues); i++) {
-		double numberOfProcessesInQueue = numberOfProcesses(vectorOfUserQueues.at(i));
-		processTime.push_back(userTime / numberOfProcessesInQueue);
+		double numberOfProcessesInQueue = numberOfProcesses(vectorOfUserQueues->at(i));
+		if (numberOfProcessesInQueue <= 0) {
+			processTime.push_back(0);
+		}
+		else {
+			processTime.push_back(userTime / numberOfProcessesInQueue);
+		}
 	}
 }
 

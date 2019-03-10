@@ -1,5 +1,6 @@
 
 #include"fileParsing.h"
+#include "Source.h"
 
 // ========== Structure declarations ==============================================
 struct schedulerPackage {
@@ -110,15 +111,46 @@ DWORD WINAPI createProcess(LPVOID lpParam) {
 }
 
 DWORD WINAPI scheduler(LPVOID lpParam) {
-	schedulerPackage * schedulerPackageObjPtr;
-	schedulerPackageObjPtr = (schedulerPackage *)lpParam;
+	schedulerPackage * sPObjPtr;
+	sPObjPtr = (schedulerPackage *)lpParam;
 
 	// calculate execution time in everyloop
 	// executionTime
 
-	//while (true) {
-	//	//std::cout << "Scheduler Thread called" << std::endl;
-	//}
+	bool firstTime = true;
+
+	while (true) {
+		//std::cout << "Scheduler Thread called" << std::endl;
+		double timer = 0;
+		// Case: 1 --> First time the scheduler starts
+		if (firstTime) {
+			// making a temporary Queue
+			std::queue<Process> tempPriorityQueueProcessHolder;
+			// every process in the priority queue is checked if it has startTime < Quantum time
+			for (int i = 0; i < (sPObjPtr->priorityQStartTimePtr->size()); i++) {
+				// poping the highest priority -> eariest time
+				Process poppedProcess = sPObjPtr->priorityQStartTimePtr->top();
+				sPObjPtr->priorityQStartTimePtr->pop();
+				// push the popped process to the temporary queue !!!not the priority Queue!!!
+				tempPriorityQueueProcessHolder.push(poppedProcess);
+				if (poppedProcess.getStartTime() < *(sPObjPtr->quantumTimePtr)) {
+					// save the popped process to its respective user queue
+					sPObjPtr->vecOfUserQPtr->at(poppedProcess.getUser()).push(poppedProcess);
+				}
+			}
+			// calculate the user process executionTime
+			std::vector<double>executionTime;
+			calcProcesTime(executionTime, *(sPObjPtr->userTimePtr), sPObjPtr->vecOfUserQPtr);
+			
+			for()
+			int iii = 0; 
+
+		}
+		// case 2 --> Second time the scheduler starts and onwards
+
+		// increment the timer by the quantum time ---> because once a loop is done means a quantum is finished
+		timer += *(sPObjPtr->quantumTimePtr);
+	}
 	//Process * processObj = new Process(schedulerPackageObjPtr->priorityQStartTimePtr, ;
 	Process * processObj = new Process();
 
@@ -166,6 +198,16 @@ void convertToPointers(std::priority_queue<Process, std::vector<Process>, compar
 	schedulerPackagePtr->userTimePtr = userTimePtr;
 }
 
+void clearingVectorOfUserQueues(std::vector<std::queue<Process>> &vectorOfUserQueues)
+{
+	int vectorSize = vectorOfUserQueues.size();
+	vectorOfUserQueues.clear();
+	for (int i = 0; i < vectorSize; i++) {
+		std::queue<Process> newEmptyQueue;
+		vectorOfUserQueues.push_back(newEmptyQueue);
+	}
+}
+
 int main() {
 
 	//    testingPriorityQueueFunc();
@@ -202,7 +244,9 @@ int main() {
 
 	// calculate the time variables needed for the user
 	timeCalculation(quantumTime, userTime, vectorOfUserQueues);
-	calcProcesTime(processTime, userTime, vectorOfUserQueues);
+	
+	// Test the function
+	// calcProcesTime(processTime, userTime, vectorOfUserQueues);
 
 	// test priority queues
 	//popFromPriorityQueue(priorityQueueStartTime);
@@ -217,6 +261,8 @@ int main() {
 	// make a structure pointer containing all variables
 	schedulerPackage * schedulerPackagePtr;
 
+	// clear vector of user queues before creating its pointer and passing it to the scheduler
+	clearingVectorOfUserQueues(vectorOfUserQueues);
 	// function to convert variables to pointer 
 	convertToPointers(priorityQueueStartTime, vectorOfUserQueues, quantumTime, userTime, schedulerPackagePtr);
 
