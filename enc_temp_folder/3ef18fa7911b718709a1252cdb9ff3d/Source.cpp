@@ -109,7 +109,7 @@ DWORD WINAPI createProcess(LPVOID lpParam) {
 	return 0;
 }
 
-DWORD WINAPI scheduler(LPVOID lpParam) {
+DWORD WINAPI schedulerFunc(LPVOID lpParam) {
 	schedulerPackage * schedulerPackageObjPtr;
 	schedulerPackageObjPtr = (schedulerPackage *)lpParam;
 
@@ -221,7 +221,7 @@ int main() {
 	convertToPointers(priorityQueueStartTime, vectorOfUserQueues, quantumTime, userTime, schedulerPackagePtr);
 
 	// crate a scheduler thread
-	HANDLE schedulerThread = CreateThread(NULL, 0, scheduler, schedulerPackagePtr, 0, NULL);
+	HANDLE schedulerThread = CreateThread(NULL, 0, schedulerFunc, schedulerPackagePtr, 0, NULL);
 	WaitForSingleObject(schedulerThread, INFINITE);
 
 
