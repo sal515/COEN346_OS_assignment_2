@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <cstddef>
+#include <ctime>
 // Thread headers
 //#include <processthreadsapi.h>
 #include <windows.h>
@@ -309,6 +310,79 @@ void calcProcesTime(std::vector<double> &processTime, const double &userTime,
 	}
 }
 
+double secondsToMilli(int seconds) {
+	return seconds * 1000;
+}
+
+
+
+void testTimerLib() {
+	//// clock Variable
+	//clock_t schedulerClockStart = 0;
+	//clock_t schedulerClockEnd = 0;
+	//clock_t pausedStart = 0;
+	//clock_t pausedEnd = 0;
+	//
+	//// start scheduler clock
+	//schedulerClockStart = clock();
+
+	//// Do something
+
+	//// scheduler needs to be paused
+	//pausedStart = clock();
+	//
+	//// Do something
+	//
+	//pausedStart = clock();
+
+
+
+
+
+	//clock_t looper = secondsToMilli(1);
+	//std::cout << "time before clock(): " << time << std::endl;
+
+	////time is in milliseconds 
+	//time = clock();
+
+	////sleep is in milliseconds 
+	//Sleep(secondsToMilli(1));
+
+	//std::cout << "time after clock(): " << time << std::endl;
+
+	//time = clock() % looper ;
+
+	//std::cout << "time after after clock(): " << time << std::endl;
+
+	//
+	
+
+}
+
+double threadCallBackFunc(double i, double j) {
+
+	std::cout << i << std::endl << std::endl;
+	std::cout << j << std::endl << std::endl;
+	std::cout << "thread call back func" << std::endl << std::endl;
+
+	return 0;
+}
+
+//void createThreadFunc(void(*threadCallBackFunc)(int, int)) {
+double createThreadFunc(double a , double b, double(*f)(double, double)) {
+
+	return(*f)(a, b);
+
+	//myThreadHandle1 = CreateThread(NULL, 0, testThreadFunc1, obj1, 0, NULL);
+
+}
+
+
+
+void testThreadWait() {
+
+}
+
 
 
 
@@ -359,8 +433,10 @@ int main() {
 
 
 
-
-
+	testTimerLib();
+	
+	
+	std::cout << createThreadFunc(011111,011001, threadCallBackFunc) << std::endl;
 
 
 
