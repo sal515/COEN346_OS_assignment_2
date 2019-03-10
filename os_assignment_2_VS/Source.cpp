@@ -94,18 +94,24 @@ void createProcess() {
 }
 
 DWORD WINAPI createProcess(LPVOID lpParam) {
-	//Process * processObj = new Process(1, 2, 0, 4);
-	//processObj = (Process*)lpParam;
+	Process * processObj = (Process *)lpParam;
 
-	// below is good algo
-	// Timer = 0;
-	// process.start()
-	// if(process.duraton == process.elapsed){
-	//		cout << "Process paused"; 
-	//		process.suspend()
-	//}
+	//processObj->getStartTime();
+	processObj->setElapsedTime(processObj->getElapsedTime() + processObj->getExecutionTime());
+	if (processObj->getElapsedTime() == processObj->getDurationTime()) {
+		std::cout << "Done" << std::endl;
+	}
+	else {
+		std::cout << "process start time : " << processObj->getStartTime() << " process duration : " << processObj->getDurationTime() << std::endl;
+	}
 
-	std::cout << "create process func called" << std::endl;
+		// below is good algo
+		// Timer = 0;
+		// process.start()
+		// if(process.duraton == process.elapsed){
+		//		cout << "Process paused"; 
+		//		process.suspend()
+		//}
 
 	return 0;
 }
@@ -120,6 +126,8 @@ DWORD WINAPI scheduler(LPVOID lpParam) {
 	bool firstTime = true;
 
 	while (true) {
+		// TODO : Fix the while(true) loop breaking
+		// if() // all processes ended break the while loop
 		//std::cout << "Scheduler Thread called" << std::endl;
 		double timer = 0;
 		// Case: 1 --> First time the scheduler starts
@@ -138,12 +146,31 @@ DWORD WINAPI scheduler(LPVOID lpParam) {
 					sPObjPtr->vecOfUserQPtr->at(poppedProcess.getUser()).push(poppedProcess);
 				}
 			}
+			while (!tempPriorityQueueProcessHolder.empty()) {
+				sPObjPtr->priorityQStartTimePtr->push(tempPriorityQueueProcessHolder.front());
+				tempPriorityQueueProcessHolder.pop();
+			}
+
+			for (int z = 0; z < tempPriorityQueueProcessHolder.size(); z++) {
+			}
+
 			// calculate the user process executionTime
 			std::vector<double>executionTime;
 			calcProcesTime(executionTime, *(sPObjPtr->userTimePtr), sPObjPtr->vecOfUserQPtr);
-			
-			for()
-			int iii = 0; 
+
+			for (int m = 0; m < sPObjPtr->vecOfUserQPtr->size(); m++) {
+				for (int n = 0; n < sPObjPtr->vecOfUserQPtr->at(m).size(); n++) {
+					Process * tempProcess = &(sPObjPtr->vecOfUserQPtr->at(n).front());
+					sPObjPtr->vecOfUserQPtr->at(n).pop();
+					// Call the thread with the temp processs
+					HANDLE processThread = CreateThread(NULL, 0, createProcess, tempProcess, 0, NULL);
+					WaitForSingleObject(processThread, INFINITE);
+					// once the tread completes push the process back in to the queue --> if it is not done
+					sPObjPtr->vecOfUserQPtr->at(n).push(*(tempProcess));
+
+				}
+			}
+			int iii = 0;
 
 		}
 		// case 2 --> Second time the scheduler starts and onwards
@@ -152,13 +179,12 @@ DWORD WINAPI scheduler(LPVOID lpParam) {
 		timer += *(sPObjPtr->quantumTimePtr);
 	}
 	//Process * processObj = new Process(schedulerPackageObjPtr->priorityQStartTimePtr, ;
-	Process * processObj = new Process();
-
-	HANDLE processThread = CreateThread(NULL, 0, createProcess, processObj, 0, NULL);
-	WaitForSingleObject(processThread, INFINITE);
+	//Process * processObj = new Process();
 
 
-	std::cout << "Scheduler Thread called" << std::endl;
+
+
+	std::cout << "Scheduler Thread End" << std::endl;
 
 
 
@@ -244,7 +270,7 @@ int main() {
 
 	// calculate the time variables needed for the user
 	timeCalculation(quantumTime, userTime, vectorOfUserQueues);
-	
+
 	// Test the function
 	// calcProcesTime(processTime, userTime, vectorOfUserQueues);
 
