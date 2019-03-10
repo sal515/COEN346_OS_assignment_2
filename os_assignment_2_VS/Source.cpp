@@ -93,8 +93,13 @@ void createProcess() {
 
 }
 
+void increaseElapsedTime(Process obj) {
+
+}
+
+
 DWORD WINAPI createProcess(LPVOID lpParam) {
-	Process * processObj = (Process *)lpParam;
+	Process * processObj = (Process*)lpParam;
 
 	//processObj->getStartTime();
 	processObj->setElapsedTime(processObj->getElapsedTime() + processObj->getExecutionTime());
@@ -105,13 +110,13 @@ DWORD WINAPI createProcess(LPVOID lpParam) {
 		std::cout << "process start time : " << processObj->getStartTime() << " process duration : " << processObj->getDurationTime() << std::endl;
 	}
 
-		// below is good algo
-		// Timer = 0;
-		// process.start()
-		// if(process.duraton == process.elapsed){
-		//		cout << "Process paused"; 
-		//		process.suspend()
-		//}
+	// below is good algo
+	// Timer = 0;
+	// process.start()
+	// if(process.duraton == process.elapsed){
+	//		cout << "Process paused"; 
+	//		process.suspend()
+	//}
 
 	return 0;
 }
@@ -172,6 +177,7 @@ DWORD WINAPI scheduler(LPVOID lpParam) {
 			}
 			int iii = 0;
 
+			firstTime = false;
 		}
 		// case 2 --> Second time the scheduler starts and onwards
 
