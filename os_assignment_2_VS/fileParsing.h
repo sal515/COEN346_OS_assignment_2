@@ -135,13 +135,13 @@ void printTextFiles() {
 
 
 void readFileToVectors(std::vector<std::queue<Process>> &vectorOfQueuesPtr,
-	std::vector<std::string> &vectorOfLines, std::vector<numberOfLinesAndFromTheLine> &vectorOfLinesAndUserLinesInFile, std::map<int,char> &userPosition_userCharMap) {
+	std::vector<std::string> &vectorOfLines, std::vector<numberOfLinesAndFromTheLine> &vectorOfLinesAndUserLinesInFile, std::map<int, char> &userPosition_userCharMap) {
 
 	std::queue<Process> queuePtrTemp;
 
 	//std::map<int, char> userPosition_userChar;
 
-	int userPositionCounter=-1;
+	int userPositionCounter = -1;
 
 	// declare temporary variables
 	std::string strTemp;
@@ -183,8 +183,6 @@ void readFileToVectors(std::vector<std::queue<Process>> &vectorOfQueuesPtr,
 		for (std::size_t i = 0; i < strTemp.length(); i++) {
 
 			if (isalpha(strTemp[0])) {
-				userPositionCounter++;
-				userPosition_userCharMap[strTemp[0]] = userPositionCounter;
 
 				if (i == (strTemp.length() - 1)) {
 					processCountFinished = true;
@@ -217,6 +215,15 @@ void readFileToVectors(std::vector<std::queue<Process>> &vectorOfQueuesPtr,
 			}
 		}
 	}
+
+	for (int i = 0; i < vectorOfLinesAndUserLinesInFile.size(); i++) {
+		std::string tempLineString = vectorOfLines.at(vectorOfLinesAndUserLinesInFile.at(i).fromTheLine);
+		char tempUserchar = tempLineString[0];
+		userPosition_userCharMap[i] = tempUserchar;
+	}
+
+
+
 	return;
 }
 

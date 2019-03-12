@@ -16,6 +16,8 @@ struct schedulerPackage {
 struct threadPackage {
 	double * timer;
 	Process * process;
+	std::map<int, char>* userPosition_userCharMAP;
+
 };
 
 // ========== Structure declarations ==============================================
@@ -40,12 +42,14 @@ double exampleFuncWithFuncAsParameter(double i, void(*functionName)(double)) {
 DWORD WINAPI createProcess(LPVOID lpParam) {
 	threadPackage * threadPackageObj = (threadPackage *)lpParam;
 
+	char userID = threadPackageObj->userPosition_userCharMAP->at(threadPackageObj->process->getUser());
+
 	if (!threadPackageObj->process->isStarted()) {
 		threadPackageObj->process->setStarted(true);
-		std::cout << *(threadPackageObj->timer) << " " << threadPackageObj->process->getUser() << " " << threadPackageObj->process->getProcessID() << " " << "started" << std::endl;
+		std::cout << *(threadPackageObj->timer) << " " << userID << " " << threadPackageObj->process->getProcessID() << " " << "started" << std::endl;
 	}
 
-	std::cout << *(threadPackageObj->timer) << " " << threadPackageObj->process->getUser() << " " << threadPackageObj->process->getProcessID() << " " << "resumed" << std::endl;
+	std::cout << *(threadPackageObj->timer) << " " << userID << " " << threadPackageObj->process->getProcessID() << " " << "resumed" << std::endl;
 
 	if (threadPackageObj->process->getExecutionTime() >= (threadPackageObj->process->getDurationTime() - threadPackageObj->process->getElapsedTime())) {
 
@@ -57,7 +61,7 @@ DWORD WINAPI createProcess(LPVOID lpParam) {
 		*(threadPackageObj->timer) = *(threadPackageObj->timer) +
 			(threadPackageObj->process->getExecutionTime() - (threadPackageObj->process->getDurationTime() - threadPackageObj->process->getElapsedTime()));
 
-		std::cout << *(threadPackageObj->timer) << " " << threadPackageObj->process->getUser() << " " << threadPackageObj->process->getProcessID() << " " << "finished" << std::endl;
+		std::cout << *(threadPackageObj->timer) << " " << userID << " " << threadPackageObj->process->getProcessID() << " " << "finished" << std::endl;
 
 
 		threadPackageObj->process->setExecutionTime(0);
@@ -73,7 +77,7 @@ DWORD WINAPI createProcess(LPVOID lpParam) {
 		*(threadPackageObj->timer) = *(threadPackageObj->timer) +
 			(threadPackageObj->process->getExecutionTime());
 
-		std::cout << *(threadPackageObj->timer) << " " << threadPackageObj->process->getUser() << " " << threadPackageObj->process->getProcessID() << " " << "paused" << std::endl;
+		std::cout << *(threadPackageObj->timer) << " " << userID << " " << threadPackageObj->process->getProcessID() << " " << "paused" << std::endl;
 
 
 		threadPackageObj->process->setExecutionTime(0);
@@ -227,8 +231,9 @@ DWORD WINAPI scheduler(LPVOID lpParam) {
 			timerPtr = &timer;
 			std::queue<Process> queueHoldingPausedProcesses;
 
-
 			while (!schedulerPackagePtr->vecOfUserQueuesPtr->at(m).empty()) {
+			
+				
 				tempProcess = &(schedulerPackagePtr->vecOfUserQueuesPtr->at(m).front());
 				schedulerPackagePtr->vecOfUserQueuesPtr->at(m).pop();
 				tempProcess->setExecutionTime(executionTimeThisQuantum.at(m));
@@ -236,7 +241,7 @@ DWORD WINAPI scheduler(LPVOID lpParam) {
 				// creating a new threadPackage
 				threadPackagePtr->process = tempProcess;
 				threadPackagePtr->timer = timerPtr;
-
+				threadPackagePtr->userPosition_userCharMAP = schedulerPackagePtr->userPosition_userCharMAP;
 				// Call the thread with the temp processs
 				HANDLE processThread = CreateThread(NULL, 0, createProcess, threadPackagePtr, 0, NULL);
 				WaitForSingleObject(processThread, INFINITE);
@@ -253,13 +258,14 @@ DWORD WINAPI scheduler(LPVOID lpParam) {
 			}
 
 			// once the tread completes push the process back in to the queue --> if it is not done
+			int iii = 0;
 
 		}
 
 		// ------------------------------------------------------------------------------------------------------------------
 		// running the processes in inside a thread from the user queues with approprite timer and userTime and executionTime 
 
-		int iii = 0;
+		int iiii = 0;
 
 
 		// increment the timer with the length of quantum time every loop 
