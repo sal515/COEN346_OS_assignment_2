@@ -253,6 +253,8 @@ void populateUserQueuesFromVectors(std::vector<std::queue<Process>> &vectorOfQue
 					userProcess.setDurationTime(std::stoi(strBuilder));
 					// adding the user id to the user process 
 					userProcess.setUser((int)userObjects);
+					// adding process id to the user process
+					userProcess.setProcessID((int)lines);
 					vectorOfQueuesPtr.at(userObjects).push(userProcess);
 				}
 			}
@@ -364,20 +366,20 @@ void storeToPriorityQueue(std::priority_queue<Process, std::vector<Process>, com
 
 	// std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> priorityQueue;
 
-	Process Process1 = Process(100, 2);
-	Process Process2 = Process(50, 2);
-	Process Process3 = Process(300, 2);
-	Process Process4 = Process(2, 2);
-	Process Process5 = Process(900, 2);
-	Process Process6 = Process(450, 2);
-	Process Process7 = Process(700, 2);
-	priorityQueue.push(Process1);
-	priorityQueue.push(Process2);
-	priorityQueue.push(Process3);
-	priorityQueue.push(Process4);
-	priorityQueue.push(Process5);
-	priorityQueue.push(Process6);
-	priorityQueue.push(Process7);
+	//Process Process1 = Process(100, 2);
+	//Process Process2 = Process(50, 2);
+	//Process Process3 = Process(300, 2);
+	//Process Process4 = Process(2, 2);
+	//Process Process5 = Process(900, 2);
+	//Process Process6 = Process(450, 2);
+	//Process Process7 = Process(700, 2);
+	//priorityQueue.push(Process1);
+	//priorityQueue.push(Process2);
+	//priorityQueue.push(Process3);
+	//priorityQueue.push(Process4);
+	//priorityQueue.push(Process5);
+	//priorityQueue.push(Process6);
+	//priorityQueue.push(Process7);
 
 }
 

@@ -4,58 +4,29 @@
 
 // ========== Structure declarations ==============================================
 struct schedulerPackage {
-	std::vector<std::queue<Process>> * vecOfUserQPtr;
+	std::vector<std::queue<Process>> * vecOfUserQueuePtr;
 	std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> * priorityQStartTimePtr;
 	double * quantumTimePtr;
 	double * userTimePtr;
 	std::vector<double> * processTimePtr;
 };
 
+struct threadPackage {
+	double * timer;
+	Process * process;
+};
+
 // ========== Structure declarations ==============================================
 
 
-void testTimerLib() {
-	//// clock Variable
-	//clock_t schedulerClockStart = 0;
-	//clock_t schedulerClockEnd = 0;
-	//clock_t pausedStart = 0;
-	//clock_t pausedEnd = 0;
-	//
-	//// start scheduler clock
-	//schedulerClockStart = clock();
 
-	//// Do something
+// ========== Protyping Functions ==============================================
 
-	//// scheduler needs to be paused
-	//pausedStart = clock();
-	//
-	//// Do something
-	//
-	//pausedStart = clock();
+void createThreadPackage(threadPackage * &threadPackagePtr, Process * tempProcess, double * timer);
+
+// ========== Protyping Functions ==============================================
 
 
-
-
-
-	//clock_t looper = secondsToMilli(1);
-	//std::cout << "time before clock(): " << time << std::endl;
-
-	////time is in milliseconds 
-	//time = clock();
-
-	////sleep is in milliseconds 
-	//Sleep(secondsToMilli(1));
-
-	//std::cout << "time after clock(): " << time << std::endl;
-
-	//time = clock() % looper ;
-
-	//std::cout << "time after after clock(): " << time << std::endl;
-
-	//
-
-
-}
 
 void threadCallBackFunc(double i) {
 	std::cout << "Passed in variable: " << i << std::endl << std::endl;
@@ -70,140 +41,164 @@ double exampleFuncWithFuncAsParameter(double i, void(*functionName)(double)) {
 	return 0;
 }
 
-
-//HANDLE createThreadFunction(DWORD WINAPI(functionName)(), Process * objParam1) {
-	//return CreateThread(NULL, 0, (functionName), objParam1, 0, NULL);
-//}
-
-
-//DWORD WINAPI testThreadFunc1(LPVOID lpParam) {
-//	threadData * dataPtr = new threadData();
-//	dataPtr = (threadData*)lpParam;
-//	int counter = 0;
-//	while (TRUE) {
-//		if (counter < 5) {
-//			std::cout << "Test func 1 " << dataPtr->getProcessTime() << std::endl;
-//			counter++;
-//		}
-//		else break;
-//	}
-
-void createProcess() {
-
-
-}
-
-void increaseElapsedTime(Process obj) {
-
-}
-
-
 DWORD WINAPI createProcess(LPVOID lpParam) {
-	Process * processObj = (Process*)lpParam;
+	threadPackage * threadPackageObj = (threadPackage *)lpParam;
 
-	//processObj->getStartTime();
-	processObj->setElapsedTime(processObj->getElapsedTime() + processObj->getExecutionTime());
-	if (processObj->getElapsedTime() == processObj->getDurationTime()) {
-		std::cout << "Done" << std::endl;
+	if (!threadPackageObj->process->isStarted()) {
+		threadPackageObj->process->setStarted(true);
+		std::cout << *(threadPackageObj->timer) << " " << threadPackageObj->process->getUser() << " " << threadPackageObj->process->getProcessID() << " " << "started" << std::endl;
 	}
+
+	std::cout << *(threadPackageObj->timer) << " " << threadPackageObj->process->getUser() << " " << threadPackageObj->process->getProcessID() << " " << "resumed" << std::endl;
+
+	if (threadPackageObj->process->getExecutionTime() >= (threadPackageObj->process->getDurationTime() - threadPackageObj->process->getElapsedTime())) {
+
+		threadPackageObj->process->setDone(true);
+		threadPackageObj->process->setPaused(false);
+		threadPackageObj->process->setUnusedTime(threadPackageObj->process->getExecutionTime() - (threadPackageObj->process->getDurationTime() - threadPackageObj->process->getElapsedTime()));
+		threadPackageObj->process->setElapsedTime(threadPackageObj->process->getExecutionTime() - threadPackageObj->process->getUnusedTime() );
+
+		*(threadPackageObj->timer) = *(threadPackageObj->timer) +
+			(threadPackageObj->process->getExecutionTime() - (threadPackageObj->process->getDurationTime() - threadPackageObj->process->getElapsedTime()));
+
+		std::cout << *(threadPackageObj->timer) << " " << threadPackageObj->process->getUser() << " " << threadPackageObj->process->getProcessID() << " " << "finished" << std::endl;
+
+
+		threadPackageObj->process->setExecutionTime(0);
+
+	}
+
 	else {
-		std::cout << "process start time : " << processObj->getStartTime() << " process duration : " << processObj->getDurationTime() << std::endl;
-	}
+		threadPackageObj->process->setDone(false);
+		threadPackageObj->process->setPaused(true);
+		threadPackageObj->process->setUnusedTime(0);
+		threadPackageObj->process->setElapsedTime(threadPackageObj->process->getExecutionTime());
 
-	// below is good algo
-	// Timer = 0;
-	// process.start()
-	// if(process.duraton == process.elapsed){
-	//		cout << "Process paused"; 
-	//		process.suspend()
-	//}
+		*(threadPackageObj->timer) = *(threadPackageObj->timer) +
+			(threadPackageObj->process->getExecutionTime());
+
+		std::cout << *(threadPackageObj->timer) << " " << threadPackageObj->process->getUser() << " " << threadPackageObj->process->getProcessID() << " " << "paused" << std::endl;
+
+
+		threadPackageObj->process->setExecutionTime(0);
+
+	}
 
 	return 0;
 }
+
 
 DWORD WINAPI scheduler(LPVOID lpParam) {
 	schedulerPackage * sPObjPtr;
 	sPObjPtr = (schedulerPackage *)lpParam;
 
-	// calculate execution time in everyloop
-	// executionTime
-
-	bool firstTime = true;
-
+	bool allProcessesDone = false;
+	double timer = 1;
+	double *timerPtr;
+	double quantumTime = *(sPObjPtr->quantumTimePtr);
+	int quantumCounter = 0;
 	while (true) {
-		// TODO : Fix the while(true) loop breaking
-		// if() // all processes ended break the while loop
-		//std::cout << "Scheduler Thread called" << std::endl;
-		double timer = 0;
-		// Case: 1 --> First time the scheduler starts
-		if (firstTime) {
-			// making a temporary Queue
-			std::queue<Process> tempPriorityQueueProcessHolder;
-			// every process in the priority queue is checked if it has startTime < Quantum time
-			for (int i = 0; i < (sPObjPtr->priorityQStartTimePtr->size()); i++) {
-				// poping the highest priority -> eariest time
-				Process poppedProcess = sPObjPtr->priorityQStartTimePtr->top();
-				sPObjPtr->priorityQStartTimePtr->pop();
+		quantumCounter++;
+		quantumTime = quantumTime * quantumCounter;
+
+
+
+		// making a temporary Queue
+		std::queue<Process> tempPriorityQueueProcessHolder;
+		
+		// every process in the priority queue is checked if it has startTime < Quantum time
+		for (int i = 0; i < (sPObjPtr->priorityQStartTimePtr->size()); i++) {
+			
+			// poping the highest priority -> eariest time
+			Process poppedProcess = sPObjPtr->priorityQStartTimePtr->top();
+			sPObjPtr->priorityQStartTimePtr->pop();
+		
+			
+			if (poppedProcess.getStartTime() < quantumTime) {
+				// save the popped process if it is to run during this quantum to its respective user queue
+				sPObjPtr->vecOfUserQueuePtr->at(poppedProcess.getUser()).push(poppedProcess);
+			}
+			else {
 				// push the popped process to the temporary queue !!!not the priority Queue!!!
 				tempPriorityQueueProcessHolder.push(poppedProcess);
-				if (poppedProcess.getStartTime() < *(sPObjPtr->quantumTimePtr)) {
-					// save the popped process to its respective user queue
-					sPObjPtr->vecOfUserQPtr->at(poppedProcess.getUser()).push(poppedProcess);
-				}
 			}
-			while (!tempPriorityQueueProcessHolder.empty()) {
-				sPObjPtr->priorityQStartTimePtr->push(tempPriorityQueueProcessHolder.front());
-				tempPriorityQueueProcessHolder.pop();
-			}
-
-			for (int z = 0; z < tempPriorityQueueProcessHolder.size(); z++) {
-			}
-
-			// calculate the user process executionTime
-			std::vector<double>executionTime;
-			calcProcesTime(executionTime, *(sPObjPtr->userTimePtr), sPObjPtr->vecOfUserQPtr);
-
-			for (int m = 0; m < sPObjPtr->vecOfUserQPtr->size(); m++) {
-				for (int n = 0; n < sPObjPtr->vecOfUserQPtr->at(m).size(); n++) {
-					Process * tempProcess = &(sPObjPtr->vecOfUserQPtr->at(n).front());
-					sPObjPtr->vecOfUserQPtr->at(n).pop();
-					// Call the thread with the temp processs
-					HANDLE processThread = CreateThread(NULL, 0, createProcess, tempProcess, 0, NULL);
-					WaitForSingleObject(processThread, INFINITE);
-					// once the tread completes push the process back in to the queue --> if it is not done
-					sPObjPtr->vecOfUserQPtr->at(n).push(*(tempProcess));
-
-				}
-			}
-			int iii = 0;
-
-			firstTime = false;
 		}
-		// case 2 --> Second time the scheduler starts and onwards
+
+		while (!tempPriorityQueueProcessHolder.empty()) {
+			sPObjPtr->priorityQStartTimePtr->push(tempPriorityQueueProcessHolder.front());
+			tempPriorityQueueProcessHolder.pop();
+		}
 
 		// increment the timer by the quantum time ---> because once a loop is done means a quantum is finished
-		timer += *(sPObjPtr->quantumTimePtr);
+
+		for (int queues = 0; queues < sPObjPtr->vecOfUserQueuePtr->size(); queues++) {
+			if (!sPObjPtr->vecOfUserQueuePtr->at(queues).empty()) {
+				allProcessesDone = false;
+				break;
+			}
+			else {
+				allProcessesDone = true;
+			}
+		}
+
+		// if all the processe are processed then the while loop will break; 
+		if (allProcessesDone) {
+			break;
+		}
+
+
+		// calculate the user process executionTime
+		std::vector<double>executionTime;
+		calcProcesTime(executionTime, *(sPObjPtr->userTimePtr), sPObjPtr->vecOfUserQueuePtr);
+
+		int vectorQueueSize = sPObjPtr->vecOfUserQueuePtr->size();
+		for (int vecQueuesPos = 0; vecQueuesPos <vectorQueueSize ; vecQueuesPos++) {
+			int queueSize = sPObjPtr->vecOfUserQueuePtr->at(vecQueuesPos).size();
+			for (int queuePos = 0; queuePos < queueSize; queuePos++) {
+				Process * tempProcess = &(sPObjPtr->vecOfUserQueuePtr->at(queuePos).front());
+				sPObjPtr->vecOfUserQueuePtr->at(queuePos).pop();
+
+				// set execution time for every process before it is passed to the thread to run 
+				tempProcess->setExecutionTime(executionTime.at(tempProcess->getUser()));
+
+				// geting reference to the timer pointer 
+				timerPtr = &timer;
+
+				threadPackage * threadPackagePtr;
+				// creating threadPackage containing process object and the timer to be passed to the createThread method
+				createThreadPackage(threadPackagePtr, tempProcess, timerPtr);
+
+				//*(threadPackagePtr->timer) = 99;
+
+				// Call the thread with the temp processs
+				HANDLE processThread = CreateThread(NULL, 0, createProcess, threadPackagePtr, 0, NULL);
+
+
+				WaitForSingleObject(processThread, INFINITE);
+
+				// once the tread completes push the process back in to the queue --> if it is not done
+				if (threadPackagePtr->process->isPaused()) {
+					sPObjPtr->vecOfUserQueuePtr->at(queuePos).push(*(threadPackagePtr->process));
+				}
+			}
+		}
+		int iii = 0;
+
+
 	}
-	//Process * processObj = new Process(schedulerPackageObjPtr->priorityQStartTimePtr, ;
-	//Process * processObj = new Process();
-
-
-
 
 	std::cout << "Scheduler Thread End" << std::endl;
-
-
 
 	return 0;
 }
 
+void createThreadPackage(threadPackage * &threadPackagePtr, Process * tempProcess, double *timer)
+{
+	threadPackagePtr = new threadPackage();
 
-void testThreadWait() {
-
+	threadPackagePtr->process = tempProcess;
+	threadPackagePtr->timer = timer;
 }
-
-
-
 
 
 void convertToPointers(std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> &priorityQueueStartTime, std::vector<std::queue<Process>> &vectorOfUserQueues, double &quantumTime, double &userTime, schedulerPackage * &schedulerPackagePtr)
@@ -225,7 +220,7 @@ void convertToPointers(std::priority_queue<Process, std::vector<Process>, compar
 
 	schedulerPackagePtr = new schedulerPackage();
 	schedulerPackagePtr->priorityQStartTimePtr = priorityQStartTimePtr;
-	schedulerPackagePtr->vecOfUserQPtr = vecOfUserQPtr;
+	schedulerPackagePtr->vecOfUserQueuePtr = vecOfUserQPtr;
 	schedulerPackagePtr->quantumTimePtr = quantumTimePtr;
 	schedulerPackagePtr->userTimePtr = userTimePtr;
 }
@@ -298,9 +293,12 @@ int main() {
 	// function to convert variables to pointer 
 	convertToPointers(priorityQueueStartTime, vectorOfUserQueues, quantumTime, userTime, schedulerPackagePtr);
 
-	// crate a scheduler thread
+	//// crate a scheduler thread
 	HANDLE schedulerThread = CreateThread(NULL, 0, scheduler, schedulerPackagePtr, 0, NULL);
 	WaitForSingleObject(schedulerThread, INFINITE);
+
+	TimerPtrTestFunc();
+		
 
 
 
@@ -318,6 +316,17 @@ int main() {
 	std::cin >> i;
 
 	return 0;
+}
+
+void TimerPtrTestFunc()
+{
+	int timer = 0;
+	int * timerPtr = &timer;
+
+	std::cout << *(timerPtr) << std::endl;
+	*(timerPtr) = 6;
+	std::cout << *(timerPtr) << std::endl;
+	std::cout << (timer) << std::endl;
 }
 
 
