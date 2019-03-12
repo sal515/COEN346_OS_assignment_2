@@ -66,8 +66,11 @@ DWORD WINAPI createProcess(LPVOID lpParam) {
 		threadPackageObj->process->setUnusedTime(threadPackageObj->process->getExecutionTime() - (threadPackageObj->process->getDurationTime() - threadPackageObj->process->getElapsedTime()));
 		threadPackageObj->process->setElapsedTime((threadPackageObj->process->getElapsedTime()) + (threadPackageObj->process->getExecutionTime() - threadPackageObj->process->getUnusedTime()));
 
-		*(threadPackageObj->timer) = *(threadPackageObj->timer) +
-			(threadPackageObj->process->getExecutionTime() - (threadPackageObj->process->getDurationTime() - threadPackageObj->process->getElapsedTime()));
+		//*(threadPackageObj->timer) = *(threadPackageObj->timer) +
+			//(threadPackageObj->process->getExecutionTime() - (threadPackageObj->process->getDurationTime() - threadPackageObj->process->getElapsedTime()));
+		
+			*(threadPackageObj->timer) = *(threadPackageObj->timer) +
+			(threadPackageObj->process->getExecutionTime() - threadPackageObj->process->getUnusedTime());
 
 		std::cout << *(threadPackageObj->timer) << " " << userID << " " << threadPackageObj->process->getProcessID() << " " << "finished" << std::endl;
 
@@ -82,7 +85,7 @@ DWORD WINAPI createProcess(LPVOID lpParam) {
 		threadPackageObj->process->setDone(false);
 		threadPackageObj->process->setPaused(true);
 		threadPackageObj->process->setUnusedTime(0);
-		threadPackageObj->process->setElapsedTime(threadPackageObj->process->getExecutionTime());
+		threadPackageObj->process->setElapsedTime(threadPackageObj->process->getElapsedTime() + threadPackageObj->process->getExecutionTime());
 
 		*(threadPackageObj->timer) = *(threadPackageObj->timer) +
 			(threadPackageObj->process->getExecutionTime());

@@ -117,7 +117,6 @@
   <ItemGroup>
     <ClCompile Include="Process.cpp" />
     <ClCompile Include="Source.cpp" />
-    <ClCompile Include="testFunc.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="fileParsing.h" />
