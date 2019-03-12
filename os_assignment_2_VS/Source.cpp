@@ -1,7 +1,7 @@
 
 #include"fileParsing.h"
 #include "Source.h"
-#include <map>
+
 
 // ========== Structure declarations ==============================================
 struct schedulerPackage {
@@ -9,6 +9,8 @@ struct schedulerPackage {
 	std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> * priorityQStartTimePtr;
 	double * quantumTimePtr;
 	std::vector<double> * processTimePtr;
+	std::map<int, char>* userPosition_userCharMAP;
+
 };
 
 struct threadPackage {
@@ -219,24 +221,39 @@ DWORD WINAPI scheduler(LPVOID lpParam) {
 		// ------------------------------------------------------------------------------------------------------------------
 
 		for (int m = 0; m < schedulerPackagePtr->vecOfUserQueuesPtr->size(); m++) {
-			for (int n = 0; n < schedulerPackagePtr->vecOfUserQueuesPtr->at(m).size(); n++) {
-				Process * tempProcess = &(schedulerPackagePtr->vecOfUserQueuesPtr->at(n).front());
-				schedulerPackagePtr->vecOfUserQueuesPtr->at(n).pop();
 
-				//			// creating a new threadPackage
-				//			threadPackagePtr = new threadPackage();
-				//			threadPackagePtr->process = tempProcess;
+			Process * tempProcess;
+			threadPackagePtr = new threadPackage();
+			timerPtr = &timer;
+			std::queue<Process> queueHoldingPausedProcesses;
 
-				//			timerPtr = &timer;
-				//			threadPackagePtr->timer = timerPtr;
 
-				//			// Call the thread with the temp processs
-				//			HANDLE processThread = CreateThread(NULL, 0, createProcess, threadPackagePtr, 0, NULL);
-				//			WaitForSingleObject(processThread, INFINITE);
-				//			// once the tread completes push the process back in to the queue --> if it is not done
-				//			sPObjPtr->vecOfUserQPtr->at(n).push(*(threadPackagePtr->process));
+			while (!schedulerPackagePtr->vecOfUserQueuesPtr->at(m).empty()) {
+				tempProcess = &(schedulerPackagePtr->vecOfUserQueuesPtr->at(m).front());
+				schedulerPackagePtr->vecOfUserQueuesPtr->at(m).pop();
+				tempProcess->setExecutionTime(executionTimeThisQuantum.at(m));
+
+				// creating a new threadPackage
+				threadPackagePtr->process = tempProcess;
+				threadPackagePtr->timer = timerPtr;
+
+				// Call the thread with the temp processs
+				HANDLE processThread = CreateThread(NULL, 0, createProcess, threadPackagePtr, 0, NULL);
+				WaitForSingleObject(processThread, INFINITE);
+
+				if (threadPackagePtr->process->isPaused()) {
+					queueHoldingPausedProcesses.push(*(threadPackagePtr->process));
+				}
 
 			}
+
+			while (!queueHoldingPausedProcesses.empty()) {
+				schedulerPackagePtr->vecOfUserQueuesPtr->at(m).push(queueHoldingPausedProcesses.front());
+				queueHoldingPausedProcesses.pop();
+			}
+
+			// once the tread completes push the process back in to the queue --> if it is not done
+
 		}
 
 		// ------------------------------------------------------------------------------------------------------------------
@@ -247,7 +264,7 @@ DWORD WINAPI scheduler(LPVOID lpParam) {
 
 		// increment the timer with the length of quantum time every loop 
 		timer = timer + quantumLength;
-		std::cout << "timer: " << timer << std::endl;
+		//std::cout << "timer: " << timer << std::endl;
 
 
 
@@ -261,7 +278,7 @@ DWORD WINAPI scheduler(LPVOID lpParam) {
 
 
 
-void convertToPointers(std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> &priorityQueueStartTime, std::vector<std::queue<Process>> &vectorOfUserQueues, double &quantumTime, schedulerPackage * &schedulerPackagePtr)
+void convertToPointers(std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> &priorityQueueStartTime, std::vector<std::queue<Process>> &vectorOfUserQueues, double &quantumTime, schedulerPackage * &schedulerPackagePtr, std::map<int, char> &userPosition_userChar)
 {
 
 	// get a pointer to the priority Start Time Queue
@@ -273,6 +290,9 @@ void convertToPointers(std::priority_queue<Process, std::vector<Process>, compar
 	// get the pointer of quantumTime
 	double * quantumTimePtr = &quantumTime;
 
+
+	std::map<int, char> * userPosition_userCharMapPtr = &userPosition_userChar;
+
 	// get the pointer of userTime
 	//double * userTimePtr = &userTime;
 
@@ -282,6 +302,7 @@ void convertToPointers(std::priority_queue<Process, std::vector<Process>, compar
 	schedulerPackagePtr->priorityQStartTimePtr = priorityQStartTimePtr;
 	schedulerPackagePtr->vecOfUserQueuesPtr = vecOfUserQPtr;
 	schedulerPackagePtr->quantumTimePtr = quantumTimePtr;
+	schedulerPackagePtr->userPosition_userCharMAP = userPosition_userCharMapPtr;
 	//schedulerPackagePtr->userTimePtr = userTimePtr;
 }
 
@@ -320,12 +341,15 @@ int main() {
 	std::vector<std::string> vectorOfLines;
 	std::vector<numberOfLinesAndFromTheLine> vectorOfLinesAndFromLines;
 
+	std::map<int, char> userPosition_userChar;
+
+
 	double quantumTime;
 	double userTime;
 	std::vector<double> processTime;
 
 
-	readFileToVectors(vectorOfUserQueues, vectorOfLines, vectorOfLinesAndFromLines);
+	readFileToVectors(vectorOfUserQueues, vectorOfLines, vectorOfLinesAndFromLines, userPosition_userChar);
 	populateUserQueuesFromVectors(vectorOfUserQueues, vectorOfLines, vectorOfLinesAndFromLines);
 	populatePriorityQueueFromUserQueues(vectorOfUserQueues, priorityQueueStartTime, priorityQueueDurationTime);
 
@@ -351,7 +375,7 @@ int main() {
 	// clear vector of user queues before creating its pointer and passing it to the scheduler
 	clearingVectorOfUserQueues(vectorOfUserQueues);
 	// function to convert variables to pointer 
-	convertToPointers(priorityQueueStartTime, vectorOfUserQueues, quantumTime, schedulerPackagePtr);
+	convertToPointers(priorityQueueStartTime, vectorOfUserQueues, quantumTime, schedulerPackagePtr, userPosition_userChar);
 
 	// crate a scheduler thread
 	HANDLE schedulerThread = CreateThread(NULL, 0, scheduler, schedulerPackagePtr, 0, NULL);

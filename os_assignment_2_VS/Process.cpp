@@ -117,6 +117,7 @@ void Process::setUnusedTime(double unusedTime) {
 Process::Process() {
 	Process::startTime = 0;
 	Process::executionTime = 0;
+	Process::userTime = 0;
 	Process::elapsedTime = 0;
 	Process::durationTime = 0;
 
@@ -137,6 +138,7 @@ Process::Process() {
 Process::Process(const Process &P1) {
 	Process::startTime = P1.getStartTime();
 	Process::executionTime = P1.getExecutionTime();
+	Process::userTime = P1.getUserTime();
 	Process::elapsedTime = P1.getElapsedTime();
 	Process::durationTime = P1.getDurationTime();
 

@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include <cstddef>
 #include <ctime>
+
 // Thread headers
 //#include <processthreadsapi.h>
 #include <windows.h>
@@ -19,6 +20,7 @@
 // Algorithm headers
 #include<queue> //https://www.geeksforgeeks.org/stl-priority-queue-for-structure-or-class/
 #include <vector>
+#include <map>
 
 
 // ===================== Struct Definitions ==========================================
@@ -37,7 +39,6 @@ struct compareProcessDurationTime {
 		return p1.getDurationTime() > p2.getDurationTime();
 	}
 };
-
 
 struct numberOfLinesAndFromTheLine {
 	int numberOfLines;
@@ -134,10 +135,13 @@ void printTextFiles() {
 
 
 void readFileToVectors(std::vector<std::queue<Process>> &vectorOfQueuesPtr,
-	std::vector<std::string> &vectorOfLines,
-	std::vector<numberOfLinesAndFromTheLine> &vectorOfLinesAndUserLinesInFile) {
+	std::vector<std::string> &vectorOfLines, std::vector<numberOfLinesAndFromTheLine> &vectorOfLinesAndUserLinesInFile, std::map<int,char> &userPosition_userCharMap) {
 
 	std::queue<Process> queuePtrTemp;
+
+	//std::map<int, char> userPosition_userChar;
+
+	int userPositionCounter=-1;
 
 	// declare temporary variables
 	std::string strTemp;
@@ -179,6 +183,9 @@ void readFileToVectors(std::vector<std::queue<Process>> &vectorOfQueuesPtr,
 		for (std::size_t i = 0; i < strTemp.length(); i++) {
 
 			if (isalpha(strTemp[0])) {
+				userPositionCounter++;
+				userPosition_userCharMap[strTemp[0]] = userPositionCounter;
+
 				if (i == (strTemp.length() - 1)) {
 					processCountFinished = true;
 				}
