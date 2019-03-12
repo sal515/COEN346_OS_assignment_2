@@ -253,6 +253,7 @@ void populateUserQueuesFromVectors(std::vector<std::queue<Process>> &vectorOfQue
 					userProcess.setDurationTime(std::stoi(strBuilder));
 					// adding the user id to the user process 
 					userProcess.setUser((int)userObjects);
+					userProcess.setProcessID((int)lines);
 					vectorOfQueuesPtr.at(userObjects).push(userProcess);
 				}
 			}
@@ -284,13 +285,13 @@ void populatePriorityQueueFromUserQueues(std::vector<std::queue<Process>> VecOfQ
 	int k = 0;
 }
 
-int numberOfUsers(const std::vector<std::queue<Process>> &queues) {
-	return queues.size();
-}
-
-int numberOfUsers(const std::vector<std::queue<Process>> *queues) {
-	return queues->size();
-}
+//int numberOfUsers(const std::vector<std::queue<Process>> &queues) {
+//	return queues.size();
+//}
+//
+//int numberOfUsers(const std::vector<std::queue<Process>> *queues) {
+//	return queues->size();
+//}
 
 int  numberOfProcesses(const std::queue<Process> &queue) {
 	return queue.size();
@@ -300,29 +301,14 @@ int  numberOfProcesses(const std::queue<Process> *queue) {
 	return queue->size();
 }
 
-void timeCalculation(double &quantumTime, double &userTime,
-	const std::vector<std::queue<Process> > &vectorOfUserQueues) {
+void calcQuantumTime(double &quantumTime) {
 
 	quantumTime = determineQuantum();
 	// calculate usertime 
-	userTime = quantumTime / numberOfUsers(vectorOfUserQueues);
+	//userTime = quantumTime / numberOfUsers(vectorOfUserQueues);
 
 }
 
-void calcProcesTime(std::vector<double> &processTime, const double &userTime,
-	const std::vector<std::queue<Process> > *vectorOfUserQueues)
-{
-	// calculate userProcessTime
-	for (int i = 0; i < numberOfUsers(vectorOfUserQueues); i++) {
-		double numberOfProcessesInQueue = numberOfProcesses(vectorOfUserQueues->at(i));
-		if (numberOfProcessesInQueue <= 0) {
-			processTime.push_back(0);
-		}
-		else {
-			processTime.push_back(userTime / numberOfProcessesInQueue);
-		}
-	}
-}
 
 double secondsToMilli(int seconds) {
 	return seconds * 1000;
@@ -364,20 +350,20 @@ void storeToPriorityQueue(std::priority_queue<Process, std::vector<Process>, com
 
 	// std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> priorityQueue;
 
-	Process Process1 = Process(100, 2);
-	Process Process2 = Process(50, 2);
-	Process Process3 = Process(300, 2);
-	Process Process4 = Process(2, 2);
-	Process Process5 = Process(900, 2);
-	Process Process6 = Process(450, 2);
-	Process Process7 = Process(700, 2);
-	priorityQueue.push(Process1);
-	priorityQueue.push(Process2);
-	priorityQueue.push(Process3);
-	priorityQueue.push(Process4);
-	priorityQueue.push(Process5);
-	priorityQueue.push(Process6);
-	priorityQueue.push(Process7);
+	//Process Process1 = Process(100, 2);
+	//Process Process2 = Process(50, 2);
+	//Process Process3 = Process(300, 2);
+	//Process Process4 = Process(2, 2);
+	//Process Process5 = Process(900, 2);
+	//Process Process6 = Process(450, 2);
+	//Process Process7 = Process(700, 2);
+	//priorityQueue.push(Process1);
+	//priorityQueue.push(Process2);
+	//priorityQueue.push(Process3);
+	//priorityQueue.push(Process4);
+	//priorityQueue.push(Process5);
+	//priorityQueue.push(Process6);
+	//priorityQueue.push(Process7);
 
 }
 

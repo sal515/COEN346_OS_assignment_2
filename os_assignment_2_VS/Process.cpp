@@ -12,12 +12,28 @@ void Process::setExecutionTime(double executionTime) {
 	Process::executionTime = executionTime;
 }
 
+double Process::getUserTime() const {
+	return userTime;
+}
+
+void Process::setUserTime(double userTime) {
+	Process::userTime = userTime;
+}
+
 int Process::getUser() const {
 	return user;
 }
 
 void Process::setUser(int user) {
 	Process::user = user;
+}
+
+int Process::getProcessID() const {
+	return processID;
+}
+
+void Process::setProcessID(int processID) {
+	Process::processID = processID;
 }
 
 double Process::getDurationTime() const {
@@ -56,33 +72,46 @@ bool Process::isDone() const {
 	return done;
 }
 
-void Process::setDone(int i) {
-	if (i == 0) {
-		Process::done= false;
-	}
-	else {
-		Process::done = true;
-	}
+void Process::setDone(bool val) {
+	Process::done = val;
+}
+
+bool Process::isStarted() const {
+	return started;
+}
+
+void Process::setStarted(bool val) {
+	Process::started = val;
+}
+
+bool Process::isPaused() const {
+	return paused;
+}
+
+void Process::setPaused(bool val) {
+	Process::paused = val;
+}
+
+double Process::getUnusedTime() const {
+	return unusedTime;
+}
+
+void Process::setUnusedTime(double unusedTime) {
+	Process::unusedTime = unusedTime;
 }
 
 
-Process::Process(double startTime, double executionTime, double elapsedTime, double durationTime) : startTime(startTime),
-executionTime(executionTime), elapsedTime(elapsedTime), durationTime(durationTime) {
-	Process::currentThreadHandle = NULL;
-	// no logic
-
-}
-
-Process::Process(double startTime, double durationTime) : startTime(startTime), durationTime(durationTime) {
-	Process::currentThreadHandle = NULL;
-	// no logic
-
-}
-
-//Process::Process(double startTime, double executionTime) : startTime(startTime), executionTime(executionTime) {
-//	Process::elapsedTime = 0;
+//Process::Process(double startTime, double executionTime, double elapsedTime, double durationTime) 
+//	: startTime(startTime), executionTime(executionTime), elapsedTime(elapsedTime), durationTime(durationTime) {
 //	Process::currentThreadHandle = NULL;
 //	// no logic
+//
+//}
+//
+//Process::Process(double startTime, double durationTime) : startTime(startTime), durationTime(durationTime) {
+//	Process::currentThreadHandle = NULL;
+//	// no logic
+//
 //}
 
 Process::Process() {
@@ -90,16 +119,34 @@ Process::Process() {
 	Process::executionTime = 0;
 	Process::elapsedTime = 0;
 	Process::durationTime = 0;
+
+
+	Process::done = false;
+	Process::started = false;
+	Process::paused = false;
+
+	Process::unusedTime = 0;
+
+	Process::processID = -1;
 	Process::user = -1;
+
 	Process::currentThreadHandle = NULL;
 }
 
 // copy constructor
-Process::Process( const Process &P1) {
+Process::Process(const Process &P1) {
 	Process::startTime = P1.getStartTime();
 	Process::executionTime = P1.getExecutionTime();
 	Process::elapsedTime = P1.getElapsedTime();
 	Process::durationTime = P1.getDurationTime();
-	Process::user= P1.getUser();
+
+	Process::done = P1.isDone();
+	Process::started = P1.isStarted();
+	Process::paused = P1.isPaused();
+
+	Process::unusedTime = P1.getUnusedTime();
+
+	Process::user = P1.getUser();
+	Process::processID = P1.getProcessID();
 
 }
