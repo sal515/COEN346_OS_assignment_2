@@ -9,14 +9,16 @@ struct schedulerPackage {
 	std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> * priorityQStartTimePtr;
 	double * quantumTimePtr;
 	std::vector<double> * processTimePtr;
-	std::map<int, char>* userPosition_userCharMAP;
+	std::map<int, char>* userPosition_userCharMAPptr;
+	std::queue<std::string>* outputFileLinesQueuePtr;
 
 };
 
 struct threadPackage {
 	double * timer;
 	Process * process;
-	std::map<int, char>* userPosition_userCharMAP;
+	std::map<int, char>* userPosition_userCharMAPptr;
+	std::queue<std::string>* outputFileLinesQueuePtr;
 
 };
 
@@ -41,15 +43,21 @@ double exampleFuncWithFuncAsParameter(double i, void(*functionName)(double)) {
 
 DWORD WINAPI createProcess(LPVOID lpParam) {
 	threadPackage * threadPackageObj = (threadPackage *)lpParam;
-
-	char userID = threadPackageObj->userPosition_userCharMAP->at(threadPackageObj->process->getUser());
+	std::string printOutString;
+	char userID = threadPackageObj->userPosition_userCharMAPptr->at(threadPackageObj->process->getUser());
 
 	if (!threadPackageObj->process->isStarted()) {
 		threadPackageObj->process->setStarted(true);
 		std::cout << *(threadPackageObj->timer) << " " << userID << " " << threadPackageObj->process->getProcessID() << " " << "started" << std::endl;
+		
+		printOutString = std::to_string(*(threadPackageObj->timer)) + " " + (userID) + " " + std::to_string(threadPackageObj->process->getProcessID()) +  " " + "started";
+		threadPackageObj->outputFileLinesQueuePtr->push(printOutString);
 	}
 
 	std::cout << *(threadPackageObj->timer) << " " << userID << " " << threadPackageObj->process->getProcessID() << " " << "resumed" << std::endl;
+	
+	printOutString = std::to_string(*(threadPackageObj->timer)) + " " + (userID) + " " + std::to_string(threadPackageObj->process->getProcessID()) + " " + "resumed";
+	threadPackageObj->outputFileLinesQueuePtr->push(printOutString);
 
 	if (threadPackageObj->process->getExecutionTime() >= (threadPackageObj->process->getDurationTime() - threadPackageObj->process->getElapsedTime())) {
 
@@ -63,6 +71,8 @@ DWORD WINAPI createProcess(LPVOID lpParam) {
 
 		std::cout << *(threadPackageObj->timer) << " " << userID << " " << threadPackageObj->process->getProcessID() << " " << "finished" << std::endl;
 
+		printOutString = std::to_string(*(threadPackageObj->timer)) + " " + (userID) + " " + std::to_string(threadPackageObj->process->getProcessID()) + " " + "finished";
+		threadPackageObj->outputFileLinesQueuePtr->push(printOutString);
 
 		threadPackageObj->process->setExecutionTime(0);
 
@@ -78,6 +88,9 @@ DWORD WINAPI createProcess(LPVOID lpParam) {
 			(threadPackageObj->process->getExecutionTime());
 
 		std::cout << *(threadPackageObj->timer) << " " << userID << " " << threadPackageObj->process->getProcessID() << " " << "paused" << std::endl;
+
+		printOutString = std::to_string(*(threadPackageObj->timer)) + " " + (userID) + " " + std::to_string(threadPackageObj->process->getProcessID()) + " " + "paused";
+		threadPackageObj->outputFileLinesQueuePtr->push(printOutString);
 
 
 		threadPackageObj->process->setExecutionTime(0);
@@ -241,7 +254,9 @@ DWORD WINAPI scheduler(LPVOID lpParam) {
 				// creating a new threadPackage
 				threadPackagePtr->process = tempProcess;
 				threadPackagePtr->timer = timerPtr;
-				threadPackagePtr->userPosition_userCharMAP = schedulerPackagePtr->userPosition_userCharMAP;
+				threadPackagePtr->userPosition_userCharMAPptr = schedulerPackagePtr->userPosition_userCharMAPptr;
+				threadPackagePtr->outputFileLinesQueuePtr = schedulerPackagePtr->outputFileLinesQueuePtr;
+
 				// Call the thread with the temp processs
 				HANDLE processThread = CreateThread(NULL, 0, createProcess, threadPackagePtr, 0, NULL);
 				WaitForSingleObject(processThread, INFINITE);
@@ -267,13 +282,6 @@ DWORD WINAPI scheduler(LPVOID lpParam) {
 
 		int iiii = 0;
 
-
-		// increment the timer with the length of quantum time every loop 
-		//timer = timer + quantumLength;
-
-
-		//std::cout << "timer: " << timer << std::endl;
-
 	}
 
 
@@ -284,7 +292,8 @@ DWORD WINAPI scheduler(LPVOID lpParam) {
 
 
 
-void convertToPointers(std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> &priorityQueueStartTime, std::vector<std::queue<Process>> &vectorOfUserQueues, double &quantumTime, schedulerPackage * &schedulerPackagePtr, std::map<int, char> &userPosition_userChar)
+void convertToPointers(std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> &priorityQueueStartTime,
+	std::vector<std::queue<Process>> &vectorOfUserQueues, double &quantumTime, schedulerPackage * &schedulerPackagePtr, std::map<int, char> &userPosition_userChar, std::queue<std::string> &outputFileLinesQueue)
 {
 
 	// get a pointer to the priority Start Time Queue
@@ -299,17 +308,14 @@ void convertToPointers(std::priority_queue<Process, std::vector<Process>, compar
 
 	std::map<int, char> * userPosition_userCharMapPtr = &userPosition_userChar;
 
-	// get the pointer of userTime
-	//double * userTimePtr = &userTime;
-
-
+	std::queue<std::string>* outputFileLinesQueuePtr = &outputFileLinesQueue;
 
 	schedulerPackagePtr = new schedulerPackage();
 	schedulerPackagePtr->priorityQStartTimePtr = priorityQStartTimePtr;
 	schedulerPackagePtr->vecOfUserQueuesPtr = vecOfUserQPtr;
 	schedulerPackagePtr->quantumTimePtr = quantumTimePtr;
-	schedulerPackagePtr->userPosition_userCharMAP = userPosition_userCharMapPtr;
-	//schedulerPackagePtr->userTimePtr = userTimePtr;
+	schedulerPackagePtr->userPosition_userCharMAPptr = userPosition_userCharMapPtr;
+	schedulerPackagePtr->outputFileLinesQueuePtr = outputFileLinesQueuePtr;
 }
 
 void clearingVectorOfUserQueues(std::vector<std::queue<Process>> &vectorOfUserQueues)
@@ -324,28 +330,18 @@ void clearingVectorOfUserQueues(std::vector<std::queue<Process>> &vectorOfUserQu
 
 int main() {
 
-	//    testingPriorityQueueFunc();
+	//randomNumberFileGenerator();
 
-		//randomNumberFileGenerator();
-	//    std::cout << determineQuantum() << std::endl;
 
-	// ===================================================
 
-	//	// This is the comparison function for the Priority Queue
-	//struct compareProcessStartTime {
-	//	bool operator()(Process const &p1, Process const &p2) {
-	//		// return "true" if "p1" is ordered before "p2", for example:
-	//		return p1.getStartTime() > p2.getStartTime();
-	//	}
-	//};
-
-	// Declaration of Main Variables needed for the Assignment
-	// requires the comparator struct to be declared
+// Declaration of Main Variables needed for the Assignment
+// requires the comparator struct to be declared
 	std::priority_queue<Process, std::vector<Process>, compareProcessStartTime> priorityQueueStartTime;
 	std::priority_queue<Process, std::vector<Process>, compareProcessDurationTime> priorityQueueDurationTime;
 	std::vector<std::queue<Process> > vectorOfUserQueues;
 	std::vector<std::string> vectorOfLines;
 	std::vector<numberOfLinesAndFromTheLine> vectorOfLinesAndFromLines;
+	std::queue<std::string> outputFileLinesQueue;
 
 	std::map<int, char> userPosition_userChar;
 
@@ -355,6 +351,9 @@ int main() {
 	std::vector<double> processTime;
 
 
+	// =============== above all the variables required are declared above =============
+
+
 	readFileToVectors(vectorOfUserQueues, vectorOfLines, vectorOfLinesAndFromLines, userPosition_userChar);
 	populateUserQueuesFromVectors(vectorOfUserQueues, vectorOfLines, vectorOfLinesAndFromLines);
 	populatePriorityQueueFromUserQueues(vectorOfUserQueues, priorityQueueStartTime, priorityQueueDurationTime);
@@ -362,12 +361,6 @@ int main() {
 	// calculate the time variables needed for the user
 	calcQuantumTime(quantumTime);
 
-	// Test the function
-	// calcProcesTime(processTime, userTime, vectorOfUserQueues);
-
-	// test priority queues
-	//popFromPriorityQueue(priorityQueueStartTime);
-	//popFromPriorityQueue(priorityQueueDurationTime);
 
 	// =============== above these are file parsing to vector and Queues --> setting up functions =============
 
@@ -381,20 +374,14 @@ int main() {
 	// clear vector of user queues before creating its pointer and passing it to the scheduler
 	clearingVectorOfUserQueues(vectorOfUserQueues);
 	// function to convert variables to pointer 
-	convertToPointers(priorityQueueStartTime, vectorOfUserQueues, quantumTime, schedulerPackagePtr, userPosition_userChar);
+	convertToPointers(priorityQueueStartTime, vectorOfUserQueues, quantumTime, schedulerPackagePtr, userPosition_userChar, outputFileLinesQueue);
 
 	// crate a scheduler thread
 	HANDLE schedulerThread = CreateThread(NULL, 0, scheduler, schedulerPackagePtr, 0, NULL);
 	WaitForSingleObject(schedulerThread, INFINITE);
 
 
-
-	// Thread-Ception Starts 
-
-
-
-
-
+	outputFileGenerator(outputFileLinesQueue);
 
 
 

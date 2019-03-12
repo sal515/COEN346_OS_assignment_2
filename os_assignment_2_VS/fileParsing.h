@@ -93,14 +93,11 @@ int determineQuantum() {
 	while (fileVar.get(character)) {
 		if (character != '\n') {
 			integerValuesStr.push_back(character);
-			//integerValuesStr = integerValuesStr + character;
-			//std::cout << integerValuesStr << std::endl;
 		}
 		else {
 			if (firstNewLine == false) {
 				firstNewLine = true;
 				fileVar.close();
-				//std::cout << "This is a test" << std::endl;
 				return std::stoi(integerValuesStr);
 			}
 			else {
@@ -112,15 +109,15 @@ int determineQuantum() {
 }
 
 // TODO Fix output file generator
-void outputFileGenerator(int *arr, int size) {
+void outputFileGenerator(std::queue<std::string> &outputFileLinesQueue) {
 	std::ofstream outfile("./output.txt");
-	for (int i = 0; i < size; i++) {
-		outfile << arr[i] << std::endl;
+	while (!outputFileLinesQueue.empty()) {
+		outfile << outputFileLinesQueue.front() << std::endl;
+		outputFileLinesQueue.pop();
 	}
 	outfile.close();
 }
 
-// TODO Fix print file contents
 void printTextFiles() {
 	std::ifstream fileVar("./input.txt");
 	char character;
@@ -138,8 +135,6 @@ void readFileToVectors(std::vector<std::queue<Process>> &vectorOfQueuesPtr,
 	std::vector<std::string> &vectorOfLines, std::vector<numberOfLinesAndFromTheLine> &vectorOfLinesAndUserLinesInFile, std::map<int, char> &userPosition_userCharMap) {
 
 	std::queue<Process> queuePtrTemp;
-
-	//std::map<int, char> userPosition_userChar;
 
 	int userPositionCounter = -1;
 
@@ -205,7 +200,6 @@ void readFileToVectors(std::vector<std::queue<Process>> &vectorOfQueuesPtr,
 			if (processCountFinished) {
 				try {
 					numOfLinesAndFromTheLineStruct.fromTheLine = lineCounter;
-					//                    numOfLinesAndFromTheLineStruct.numberOfLines = std::stoi(strBuilder);
 					numOfLinesAndFromTheLineStruct.numberOfLines = std::stoi(strBuilder);
 					vectorOfLinesAndUserLinesInFile.push_back(numOfLinesAndFromTheLineStruct);
 				}
@@ -299,14 +293,6 @@ void populatePriorityQueueFromUserQueues(std::vector<std::queue<Process>> VecOfQ
 	int k = 0;
 }
 
-//int numberOfUsers(const std::vector<std::queue<Process>> &queues) {
-//	return queues.size();
-//}
-//
-//int numberOfUsers(const std::vector<std::queue<Process>> *queues) {
-//	return queues->size();
-//}
-
 int  numberOfProcesses(const std::queue<Process> &queue) {
 	return queue.size();
 }
@@ -316,11 +302,7 @@ int  numberOfProcesses(const std::queue<Process> *queue) {
 }
 
 void calcQuantumTime(double &quantumTime) {
-
 	quantumTime = determineQuantum();
-	// calculate usertime 
-	//userTime = quantumTime / numberOfUsers(vectorOfUserQueues);
-
 }
 
 
@@ -342,20 +324,8 @@ double secondsToMilli(int seconds) {
 
 
 
-
 // ============================================ Test functions ===========================================================================
 // ============================================ Test functions ===========================================================================
-
-
-
-
-
-
-
-
-
-
-
 
 
 
