@@ -56,7 +56,7 @@ DWORD WINAPI createProcess(LPVOID lpParam) {
 		threadPackageObj->process->setDone(true);
 		threadPackageObj->process->setPaused(false);
 		threadPackageObj->process->setUnusedTime(threadPackageObj->process->getExecutionTime() - (threadPackageObj->process->getDurationTime() - threadPackageObj->process->getElapsedTime()));
-		threadPackageObj->process->setElapsedTime(threadPackageObj->process->getExecutionTime() - threadPackageObj->process->getUnusedTime());
+		threadPackageObj->process->setElapsedTime((threadPackageObj->process->getElapsedTime()) + (threadPackageObj->process->getExecutionTime() - threadPackageObj->process->getUnusedTime()));
 
 		*(threadPackageObj->timer) = *(threadPackageObj->timer) +
 			(threadPackageObj->process->getExecutionTime() - (threadPackageObj->process->getDurationTime() - threadPackageObj->process->getElapsedTime()));
@@ -137,7 +137,7 @@ DWORD WINAPI scheduler(LPVOID lpParam) {
 		// --------------------------------------------
 		double userTimeThisQuantum = 0;
 		int numberOfuserThisQuantum = 0;
-		std::map<int, bool> userQueuePos_isActiveThisQuantum;
+		std::map<int, bool> userQueuePos_isActiveThisQuantumMap;
 		std::vector<double>executionTimeThisQuantum;
 
 		// --------------------------------------------
@@ -154,12 +154,12 @@ DWORD WINAPI scheduler(LPVOID lpParam) {
 		for (int i = 0; i < vectorOfUserQueueSize; i++) {
 			if (schedulerPackagePtr->vecOfUserQueuesPtr->at(i).empty()) {
 				// don't increment the numberOfUserThisQuantum;
-				userQueuePos_isActiveThisQuantum[i] = false;
+				userQueuePos_isActiveThisQuantumMap[i] = false;
 
 			}
 			else {
 				numberOfuserThisQuantum++;
-				userQueuePos_isActiveThisQuantum[i] = true;
+				userQueuePos_isActiveThisQuantumMap[i] = true;
 			}
 
 
@@ -207,8 +207,8 @@ DWORD WINAPI scheduler(LPVOID lpParam) {
 		// --------------------------------------------
 		//std::vector<double>executionTimeThisQuantum;
 
-		for (int i = 0; i < userQueuePos_isActiveThisQuantum.size(); i++) {
-			if (userQueuePos_isActiveThisQuantum.at(i) == true) {
+		for (int i = 0; i < userQueuePos_isActiveThisQuantumMap.size(); i++) {
+			if (userQueuePos_isActiveThisQuantumMap.at(i) == true) {
 				int numberOfProcessesInAQueue = schedulerPackagePtr->vecOfUserQueuesPtr->at(i).size();
 				executionTimeThisQuantum.push_back(userTimeThisQuantum / numberOfProcessesInAQueue);
 			}
@@ -232,8 +232,8 @@ DWORD WINAPI scheduler(LPVOID lpParam) {
 			std::queue<Process> queueHoldingPausedProcesses;
 
 			while (!schedulerPackagePtr->vecOfUserQueuesPtr->at(m).empty()) {
-			
-				
+
+
 				tempProcess = &(schedulerPackagePtr->vecOfUserQueuesPtr->at(m).front());
 				schedulerPackagePtr->vecOfUserQueuesPtr->at(m).pop();
 				tempProcess->setExecutionTime(executionTimeThisQuantum.at(m));
@@ -269,10 +269,10 @@ DWORD WINAPI scheduler(LPVOID lpParam) {
 
 
 		// increment the timer with the length of quantum time every loop 
-		timer = timer + quantumLength;
+		//timer = timer + quantumLength;
+
+
 		//std::cout << "timer: " << timer << std::endl;
-
-
 
 	}
 
